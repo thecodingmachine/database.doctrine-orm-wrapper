@@ -1,0 +1,28 @@
+{
+	"name" : "mouf/database.doctrine-orm-wrapper",
+	"description" : "This package contains wrapper classes that make Doctrine ORM easy to use in Mouf",
+	"keywords" : [
+		"doctrine",
+		"orm",
+		"wrapper",
+		"mouf",
+	],
+	"homepage" : "https://mouf-php.com/packages/mouf/database.doctrine-orm-wrapper",
+	"type" : "mouf-library",
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "David Négrier",
+			"email" : "d.negrier@thecodingmachine.com",
+			"homepage" : "http://mouf-php.com"
+		}
+	],
+	"require" : {
+		"php" : ">=5.3.0",
+		"doctrine-orm": "~2.4"
+	},
+	"extra" : {
+		"mouf" : {
+			"logo" : "logo.png"
+		}
+	}
+}
