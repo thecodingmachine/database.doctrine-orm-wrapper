@@ -5,7 +5,7 @@
 		"doctrine",
 		"orm",
 		"wrapper",
-		"mouf",
+		"mouf"
 	],
 	"homepage" : "https://mouf-php.com/packages/mouf/database.doctrine-orm-wrapper",
 	"type" : "mouf-library",
