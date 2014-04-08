@@ -27,7 +27,15 @@
 	},
 	"extra" : {
 		"mouf" : {
-			"logo" : "logo.png"
+			"install" : [{
+					"type" : "url",
+					"url" : "entityManagerInstall/"
+				}
+			],
+			"logo" : "logo.png",
+			"require-admin" : [
+				"src/EntityManagerWrapperAdmin.php"
+			]
 		}
 	}
 }
