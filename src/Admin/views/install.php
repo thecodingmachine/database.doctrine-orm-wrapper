@@ -16,10 +16,11 @@ Unless you are developing your own autoload system, you should configure <strong
 <?php 
 } ?>
 
-<form action="install" class="form-horizontal">
+<form action="test" class="form-horizontal">
 	<input type="hidden" id="selfedit" name="selfedit" value="<?php echo plainstring_to_htmlprotected($this->selfedit) ?>" />
 	<input type="hidden" id="instanceName" name="instanceName" value="<?php echo plainstring_to_htmlprotected($this->instanceName); ?>" />
 	<input type="hidden" id="psrMode" name="psrMode" value="<?php echo plainstring_to_htmlprotected($this->psrMode); ?>" />
+	<input type="hidden" id="installMode" name="psrMode" value="<?php echo plainstring_to_htmlprotected($this->installMode); ?>" />
 	
 	<div class="control-group">
 		<label for="sourceDirectory" class="control-label">Source Directory:</label>
@@ -51,6 +52,7 @@ Unless you are developing your own autoload system, you should configure <strong
 	</div>
 	<div class="control-group">
 		<div class="controls">
-			<button name="action" value="install" type="submit" class="btn btn-danger">Generate</button>
+			<button name="action" value="install" type="submit" class="btn btn-danger">Next</button>
 		</div>
 	</div>
+</form>

@@ -30,7 +30,7 @@
 		"mouf" : {
 			"install" : [{
 					"type" : "url",
-					"url" : "entityManagerInstall/"
+					"url" : "entityManagerInstall/?installMode=1"
 				}
 			],
 			"logo" : "logo.png",

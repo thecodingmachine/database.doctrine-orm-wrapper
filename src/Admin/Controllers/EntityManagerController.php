@@ -1,6 +1,8 @@
 <?php
 namespace Mouf\Doctrine\ORM\Admin\Controllers;
 
+use Mouf\Html\Widgets\MessageService\Service\UserMessageInterface;
+
 use Mouf\MoufUtils;
 
 use Mouf\InstanceProxy;
@@ -55,6 +57,8 @@ class EntityManagerController extends Controller  {
 	protected $psrMode;
 	protected $instanceName;
 	
+	protected $errors = array();
+	
 	/**
 	 * Displays the first install screen.
 	 * 
@@ -62,8 +66,9 @@ class EntityManagerController extends Controller  {
 	 * @Logged
 	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only) 
 	 */
-	public function defaultAction($name = null, $selfedit = "false") {
+	public function defaultAction($name = null, $selfedit = "false", $installMode = null) {
 		$this->selfedit = $selfedit;
+		$this->installMode = $installMode;
 		$name = $name ? $name : "entityManager";
 		
 		$this->instanceName = $name;
@@ -110,7 +115,11 @@ class EntityManagerController extends Controller  {
 	 * @Logged
 	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
 	 */
-	public function install($sourceDirectory, $entitiesNamespace, $proxyNamespace, $daoNamespace, $instanceName, $selfedit) {
+	public function test($sourceDirectory, $entitiesNamespace, $proxyNamespace, $daoNamespace, $instanceName, $selfedit, $installMode) {
+		$this->instanceName = $instanceName;
+		$this->selfedit = $selfedit;
+		$this->installMode = $installMode;
+		
 		if ($selfedit == "true") {
 			$this->moufManager = MoufManager::getMoufManager();
 		} else {
@@ -149,26 +158,53 @@ class EntityManagerController extends Controller  {
 	
 		
 		$proxy = new InstanceProxy($instanceName);
-		try{
-			$proxy->generateSchemaFromEntities();
-			$daoData = $proxy->generateDAOs();
-			
-			foreach ($daoData as $fullClassName => $className) {
-				if (!$this->moufManager->instanceExists(lcfirst($className))){
-					$daoInstance = $this->moufManager->createInstance($fullClassName);
-				}else{
-					$daoInstance = $this->moufManager->getInstanceDescriptor(lcfirst($daoClass));
-				}
-				$daoInstance->getProperty("entityManager")->setValue($em);
+		$this->sql = $proxy->getSchemaUpdateSQL();
+		
+		$this->moufManager->rewriteMouf();
+		
+		$this->contentBlock->addFile(__DIR__."/../views/install2.php", $this);
+		$this->template->toHtml();
+	}
+	/**
+	 * Displays the "schema generation screen"
+	 *
+	 * @Action
+	 * @Logged
+	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
+	 */
+	public function install($instanceName, $selfedit, $installMode) {
+		if ($selfedit == "true") {
+			$this->moufManager = MoufManager::getMoufManager();
+		} else {
+			$this->moufManager = MoufManager::getMoufManagerHiddenInstance();
+		}
+		
+		$proxy = new InstanceProxy($instanceName);
+		$fileName = $proxy->updateSchema();
+		$daoData = $proxy->generateDAOs();
+		$em = $this->moufManager->getInstanceDescriptor($instanceName);
+		
+		
+		foreach ($daoData as $fullClassName => $className) {
+			if (!$this->moufManager->instanceExists(lcfirst($className))){
+				$daoInstance = $this->moufManager->createInstance($fullClassName);
+				$daoInstance->setName(lcfirst($className));
+			}else{
+				$daoInstance = $this->moufManager->getInstanceDescriptor(lcfirst($className));
 			}
-			
-		}catch (\Exception $e){
-			$this->errors[] = $e;
+			$daoInstance->getProperty("entityManager")->setValue($em);
 		}
 		
 		$this->moufManager->rewriteMouf();
-		//redirect User to right view
-		var_dump($this->errors);
+		
+		if ($installMode){
+			InstallUtils::continueInstall($selfedit == "true");
+		}else{
+			set_user_message("Schema and DAOs have been successfully updated.<br>
+			<b>A backup dump has been generated in $fileName</b>", UserMessageInterface::SUCCESS);
+			header("Location:".ROOT_URL."ajaxinstance/?name=$instanceName&selfedit=".$selfedit);
+		}
+		
 	}
 	
 }

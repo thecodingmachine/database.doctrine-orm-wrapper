@@ -15,7 +15,7 @@ use Doctrine\ORM\ORMException;
  * This allows calling the constructor directly using Mouf.
  *
  * @author David Négrier <david@mouf-php.com>
- * @ExtendedAction {"name":"Generate DBSchema", "url":"entityManagerInstall/", "default":false}
+ * @ExtendedAction {"name":"Update DBSchema", "url":"entityManagerInstall/", "default":false}
  */
 class EntityManager extends \Doctrine\ORM\EntityManager
 {
@@ -46,13 +46,31 @@ class EntityManager extends \Doctrine\ORM\EntityManager
 		parent::__construct($conn, $config, $eventManager);
 	}
 
-	public function generateSchemaFromEntities(){
+	public function updateSchema(){
 		$metadata = $this->getMetadataFactory()->getAllMetadata();
 		if ( ! empty($metadata)) {
 			$tool = new SchemaTool($this);
-			$tool->dropSchema($metadata);
-			$tool->createSchema($metadata);
+			$fileName = ROOT_PATH . "dump.sql";
+			$sqls = $tool->getCreateSchemaSql($metadata);
+			$dump = "";
+			foreach ($sqls as $sql){
+				$dump .= $sql . ";\n";
+			}
+			file_put_contents($fileName, $dump);
+			
+			$tool->updateSchema($metadata);
 		}
+		return $fileName;
+	}
+	
+	public function getSchemaUpdateSQL(){
+		$metadata = $this->getMetadataFactory()->getAllMetadata();
+		$sql = array();
+		if ( ! empty($metadata)) {
+			$tool = new SchemaTool($this);
+			$sql = $tool->getUpdateSchemaSql($metadata);
+		}
+		return $sql;
 	}
 
 	public function generateDAOs(){
@@ -91,12 +109,26 @@ class EntityManager extends \Doctrine\ORM\EntityManager
 			if (array_search($fieldName, $data->identifier) === false){
 				$field = \Doctrine\Common\Util\Inflector::classify($fieldName);
 				$magicCallsStr .= "
-	public function _findBy$field(\$fieldValue, \$orderBy, \$limit, \$offset) {
-		return \$this->findBy$field(\$fieldValue, \$orderBy, \$limit, \$offset);
+	/**
+	 * Wrapper around the magic __call implementations of the findBy[Field] function to get autocompletion
+	 * @param mixed \$fieldValue the value of the filtered field
+	 * @param array|null \$orderBy the value of the filtered field
+	 * @param int|null \$limit the max elements to be returned
+	 * @param int|null \$offset the index of the first element to retrieve
+	 * @return ".$entityName."[]
+	 */
+	public function findBy$field(\$fieldValue, \$orderBy = null, \$limit = null, \$offset = null) {
+		return \$this->__call('findBy$field', array(\$fieldValue, \$orderBy, \$limit, \$offset));
 	}
-				
-	public function _findOneBy$field(\$fieldValue, \$orderBy) {
-		return \$this->findOneBy$field(\$fieldValue, \$orderBy);
+
+	/**
+	 * Wrapper around the magic __call implementations of the findByOne[Field] function to get autocompletion
+	 * @param mixed \$fieldValue the value of the filtered field
+	 * @param array|null \$orderBy the value of the filtered field
+	 * @return $entityName
+	 */
+	public function findOneBy$field(\$fieldValue, \$orderBy = null) {
+		return \$this->__call('findOneBy$field', array(\$fieldValue, \$orderBy));
 	}";
 			}
 		}
@@ -112,6 +144,7 @@ namespace $this->daoNamespace;
 use Mouf\\Database\\DAOInterface;
 use Mouf\\Doctrine\\ORM\\EntityManager;
 use Doctrine\\ORM\\EntityRepository;
+use $entityClass;
 
 /**
 * The $daoBaseClassName class will maintain the persistance of $entityName class into the $tableName table.
@@ -124,6 +157,15 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	 */
 	public function __construct(\$entityManager){
 		parent::__construct(\$entityManager, \$entityManager->getClassMetadata('$entityClass'));
+	}
+	
+
+	/**
+	 * Get a new bean record
+	 * * @return mixed the new bean object
+	 */
+	public function create(){
+		return new $entityName();
 	}
 	
 	/**
@@ -159,8 +201,6 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 		chmod($daoPath . "/" . $fileName, 0664);
 		
 		$str = "<?php
-/*
-*/
 namespace $this->daoNamespace;
 
 use Mouf\\Database\\DAOInterface;
@@ -169,7 +209,6 @@ use Doctrine\\ORM\\EntityRepository;
 
 /**
 * The $daoClassName class will maintain the persistance of $entityName class into the $tableName table.
-*
 */
 class $daoClassName extends $daoBaseClassName {
 	
@@ -177,8 +216,10 @@ class $daoClassName extends $daoBaseClassName {
 
 }";
 		$fileName = $daoClassName . ".php";
-		file_put_contents($daoPath . "/" . $fileName, $str);
-		chmod($daoPath . "/" . $fileName, 0664);
+		if (!file_exists($daoPath . "/" . $fileName)){
+			file_put_contents($daoPath . "/" . $fileName, $str);
+			chmod($daoPath . "/" . $fileName, 0664);
+		}
 		
 		return array($this->daoNamespace . "\\" . $daoClassName , $daoClassName);
 	}
