@@ -115,7 +115,7 @@ class EntityManagerController extends Controller  {
 	 * @Logged
 	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
 	 */
-	public function test($sourceDirectory, $entitiesNamespace, $proxyNamespace, $daoNamespace, $instanceName, $selfedit, $installMode) {
+	public function test($sourceDirectory, $entitiesNamespace, $proxyNamespace, $daoNamespace, $instanceName, $selfedit, $installMode = null) {
 		$this->instanceName = $instanceName;
 		$this->selfedit = $selfedit;
 		$this->installMode = $installMode;
@@ -155,7 +155,9 @@ class EntityManagerController extends Controller  {
 		$em->getProperty("entitiesNamespace")->setValue($entitiesNamespace);
 		$em->getProperty("proxyNamespace")->setValue($proxyNamespace);
 		$em->getProperty("daoNamespace")->setValue($daoNamespace);
-	
+		
+		//Update connection to get the same configuration instance 
+		$dbalConnection->getProperty("config")->setValue($config);
 		
 		$proxy = new InstanceProxy($instanceName);
 		$this->sql = $proxy->getSchemaUpdateSQL();
@@ -172,7 +174,7 @@ class EntityManagerController extends Controller  {
 	 * @Logged
 	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
 	 */
-	public function install($instanceName, $selfedit, $installMode) {
+	public function install($instanceName, $selfedit, $installMode=null) {
 		if ($selfedit == "true") {
 			$this->moufManager = MoufManager::getMoufManager();
 		} else {

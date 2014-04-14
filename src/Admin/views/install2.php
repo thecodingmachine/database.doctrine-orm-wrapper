@@ -7,7 +7,7 @@ use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
 <form action="install" class="form-horizontal">
 	<input type="hidden" id="selfedit" name="selfedit" value="<?php echo plainstring_to_htmlprotected($this->selfedit) ?>" />
 	<input type="hidden" id="instanceName" name="instanceName" value="<?php echo plainstring_to_htmlprotected($this->instanceName); ?>" />
-	<input type="hidden" id="installMode" name="instanceName" value="<?php echo plainstring_to_htmlprotected($this->installMode); ?>" />
+	<input type="hidden" id="installMode" name="installMode" value="<?php echo plainstring_to_htmlprotected($this->installMode); ?>" />
 	
 	<div class="control-group">
 		<p>
