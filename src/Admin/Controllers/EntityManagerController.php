@@ -174,7 +174,7 @@ class EntityManagerController extends Controller  {
 	 * @Logged
 	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
 	 */
-	public function install($instanceName, $selfedit, $installMode=null) {
+	public function install($instanceName, $selfedit, $installMode = null) {
 		if ($selfedit == "true") {
 			$this->moufManager = MoufManager::getMoufManager();
 		} else {
