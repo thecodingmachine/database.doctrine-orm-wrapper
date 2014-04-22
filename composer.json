@@ -11,7 +11,7 @@
 	"type" : "mouf-library",
 	"license" : "MIT",
 	"authors" : [{
-			"name" : "David Négrier",
+			"name" : "David N��grier",
 			"email" : "d.negrier@thecodingmachine.com",
 			"homepage" : "http://mouf-php.com"
 		}
@@ -19,7 +19,8 @@
 	"require" : {
 		"php" : ">=5.3.0",
 		"doctrine/orm" : "~2.4",
-		"mouf/database.dao-interface" : "2.*"
+		"mouf/database.dao-interface" : "2.*",
+		"mouf/utils.common.doctrine-annotations-wrapper": "~1.2"
 	},
 	"autoload" : {
 		"psr-4" : {
