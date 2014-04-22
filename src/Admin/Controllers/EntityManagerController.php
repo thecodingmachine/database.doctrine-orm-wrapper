@@ -143,7 +143,7 @@ class EntityManagerController extends Controller  {
 		$proxyPath = $sourceDirectory . str_replace("\\", "/", $proxyNamespace);
 		$daoPath = $sourceDirectory . str_replace("\\", "/", $daoNamespace);
 		
-		$annotationDriver = InstallUtils::getOrCreateInstance('annotationDriver', null, $moufManager);
+		$annotationDriver = InstallUtils::getOrCreateInstance('annotationDriver', null, $this->moufManager);
 		$annotationDriver->setCode('return new Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver($container->get(\'annotationReader\'), [ROOT_PATH . "'. $entitiesPath.'"]);');
 		
 		$config->getProperty("metadataDriverImpl")->setValue($annotationDriver);

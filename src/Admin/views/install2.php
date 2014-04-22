@@ -26,7 +26,7 @@ use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
 		<?php 
 		foreach ($this->sql as $request){
 		?>
-			<li><?php echo $request; ?></li>
+			<li><?php echo $request.';'; ?></li>
 		<?php
 		}
 		?>
