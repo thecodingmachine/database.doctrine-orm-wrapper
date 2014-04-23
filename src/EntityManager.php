@@ -14,7 +14,7 @@ use Doctrine\ORM\ORMException;
  * This is a very simple wrapper around Doctrine's EntityManager that exposes its contructor as "public".
  * This allows calling the constructor directly using Mouf.
  *
- * @author David Négrier <david@mouf-php.com>
+ * @author David N��grier <david@mouf-php.com>
  * @ExtendedAction {"name":"Update DBSchema", "url":"entityManagerInstall/", "default":false}
  */
 class EntityManager extends \Doctrine\ORM\EntityManager
@@ -198,7 +198,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 }";
 		$fileName = $daoBaseClassName . ".php";
 		file_put_contents($daoPath . "/" . $fileName, $str);
-		chmod($daoPath . "/" . $fileName, 0664);
+		@chmod($daoPath . "/" . $fileName, 0664);
 		
 		$str = "<?php
 namespace $this->daoNamespace;
