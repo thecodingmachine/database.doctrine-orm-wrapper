@@ -11,7 +11,7 @@
 	"type" : "mouf-library",
 	"license" : "MIT",
 	"authors" : [{
-			"name" : "David N��grier",
+			"name" : "David Négrier",
 			"email" : "d.negrier@thecodingmachine.com",
 			"homepage" : "http://mouf-php.com"
 		}
@@ -32,6 +32,19 @@
 			"install" : [{
 					"type" : "url",
 					"url" : "entityManagerInstall/?installMode=1"
+				}
+			],
+			"doc" : [{
+					"title" : "Defining properties for the 'entityManager' instance",
+					"url" : "doc/define-properties.md"
+				},
+				{
+					"title" : "Create / Update your DB schema",
+					"url" : "doc/schema.md"
+				},
+				{
+					"title" : "Generated DAO classes",
+					"url" : "doc/daos.md"
 				}
 			],
 			"logo" : "logo.png",

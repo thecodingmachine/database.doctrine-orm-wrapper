@@ -3,7 +3,7 @@ use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
 /* @var $this EntityManagerController */
 ?>
 
-<h1>Lanuch Schema generation</h1>
+<h1>Launch Schema generation</h1>
 <form action="install" class="form-horizontal">
 	<input type="hidden" id="selfedit" name="selfedit" value="<?php echo plainstring_to_htmlprotected($this->selfedit) ?>" />
 	<input type="hidden" id="instanceName" name="instanceName" value="<?php echo plainstring_to_htmlprotected($this->instanceName); ?>" />

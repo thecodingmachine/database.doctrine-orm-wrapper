@@ -6,6 +6,10 @@ In this package, we have implemented this functionnality as both install and con
 
 ![Configure the entityManager](images/configure-entityManager.png)
 
+Moreover, you will be able to update your DB Schema at all time using the menu entry in DB >> Doctrine >> Generate Schema and DAOs:
+
+![Configure the enttityManager](images/menu-generate-schema.png)
+
 Once your have configured the main properties of the `entityManager`, your will be shown a message that lists all SQL requests that are about to be run on the Database. Here is an example of adding a field in the `User` entity:
 
 This code has been added :
