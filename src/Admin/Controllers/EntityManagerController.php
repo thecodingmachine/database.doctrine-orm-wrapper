@@ -14,6 +14,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Mouf\Actions\InstallUtils;
 use Mouf\MoufManager;
 use Mouf\Mvc\Splash\Controllers\Controller;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * The controller managing the install process.
@@ -140,6 +141,12 @@ class EntityManagerController extends Controller  {
 		$entitiesPath = $sourceDirectory . str_replace("\\", "/", $entitiesNamespace);
 		$proxyPath = $sourceDirectory . str_replace("\\", "/", $proxyNamespace);
 		$daoPath = $sourceDirectory . str_replace("\\", "/", $daoNamespace);
+		
+		$fileSystem = new Filesystem();
+		// Note: for some reason, the mode of mkdir is not accounted for. We need to call chmod on it
+		// Not perfect: only the last dir takes the mode, not the intermediate directories.
+		$fileSystem->mkdir(array(ROOT_PATH."../../../".$entitiesPath, ROOT_PATH."../../../".$proxyPath, ROOT_PATH."../../../".$daoPath), 0775);
+		$fileSystem->chmod(array(ROOT_PATH."../../../".$entitiesPath, ROOT_PATH."../../../".$proxyPath, ROOT_PATH."../../../".$daoPath), 0775);
 		
 		$annotationDriver = InstallUtils::getOrCreateInstance('annotationDriver', null, $this->moufManager);
 		$annotationDriver->setCode('return new Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver($container->get(\'annotationReader\'), [ROOT_PATH . "'. $entitiesPath.'"]);');
