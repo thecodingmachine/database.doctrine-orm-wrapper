@@ -18,8 +18,6 @@ use Mouf\Mvc\Splash\Controllers\Controller;
 /**
  * The controller managing the install process.
  * It will query the database details.
- *
- * @Component
  */
 class EntityManagerController extends Controller  {
 	
@@ -162,10 +160,10 @@ class EntityManagerController extends Controller  {
 		//Update connection to get the same configuration instance 
 		$dbalConnection->getProperty("config")->setValue($config);
 		
+		$this->moufManager->rewriteMouf();
+		
 		$proxy = new InstanceProxy($instanceName);
 		$this->sql = $proxy->getSchemaUpdateSQL();
-		
-		$this->moufManager->rewriteMouf();
 		
 		$this->contentBlock->addFile(__DIR__."/../views/install2.php", $this);
 		$this->template->toHtml();

@@ -21,7 +21,8 @@
 		"doctrine/orm" : "~2.4",
 		"mouf/database.dao-interface" : "2.*",
 		"mouf/utils.common.doctrine-annotations-wrapper" : "~1.2",
-		"mouf/database.doctrine-dbal-wrapper" : "1.0.x-dev"
+		"mouf/database.doctrine-dbal-wrapper" : "1.0.x-dev",
+		"symfony/filesystem": "~2.1"
 	},
 	"autoload" : {
 		"psr-4" : {

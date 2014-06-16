@@ -26,11 +26,11 @@ Unless you are developing your own autoload system, you should configure <strong
 		<label for="sourceDirectory" class="control-label">Source Directory:</label>
 		<div class="controls">
 			<input type="text" id="sourceDirectory" name="sourceDirectory" value="<?php echo plainstring_to_htmlprotected($this->sourceDirectory) ?>" />
-			<span class="help-block">The the classes are located</span>
+			<span class="help-block">The path to the classes</span>
 		</div>
 	</div>
 	<div>
-		<label for="entitiesNamespace" class="control-label">Enities Namespace:</label>
+		<label for="entitiesNamespace" class="control-label">Entities Namespace:</label>
 		<div class="controls">
 			<input type="text" id="entitiesNamespace" name="entitiesNamespace" value="<?php echo plainstring_to_htmlprotected($this->entitiesNamespace) ?>" />
 			<span class="help-block">The path where the Proxies should be generated</span>
