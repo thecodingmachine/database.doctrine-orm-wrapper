@@ -1,21 +1,19 @@
 Doctrine ORM wrapper classes for Mouf
 =====================================
 
-WARNING! IN DEVELOPMENT! NOT READY FOR PRODUCTION
-=================================================
-
 This package contains a single class that makes Doctrine/ORM easily usable in Mouf.
-It extends Doctrine's `EntityManager` class and makes it constructor public (and therefore instantiable using Mouf DI engine).
 
-The other components in this package only implement:
+It provides an installer that creates an instance of `EntityManager`.
+
+The package also feature a special UI that will help you:
 
  * install & edit interfaces to help the user defining the main properties of the `entityManager` instance. 
  * automated DB Schema generation
- * DAO generation that ill produce helpers for performing base queries
+ * DAO (repository) generation that produce helpers for performing base queries
  
 These steps are triggered during the install process, but also when lanching the configuration interface from the `entityManager` instance dedicated button :
 
-![Configure the enttityManager](doc/images/configure-entityManager.png)
+![Configure the entityManager](doc/images/configure-entityManager.png)
 
 Finally, you will be able to update your DB Schema at all time using the menu entry in DB >> Doctrine >> Generate Schema and DAOs:
 
