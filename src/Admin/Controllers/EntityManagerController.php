@@ -158,7 +158,7 @@ class EntityManagerController extends Controller  {
 		$annotationDriver->setCode('return new Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver($container->get(\'annotationReader\'), [ROOT_PATH . "'. $entitiesPath.'"]);');
 		
 		$config->getProperty("metadataDriverImpl")->setValue($annotationDriver);
-		$config->getProperty("proxyDir")->setValue($proxyPath);
+		$config->getProperty("proxyDir")->setOrigin('php')->setValue('return ROOT_PATH."'.addslashes($proxyPath).'";');
 		$config->getProperty("proxyNamespace")->setValue($proxyNamespace);
 		
 		$em->getProperty("conn")->setValue($dbalConnection);

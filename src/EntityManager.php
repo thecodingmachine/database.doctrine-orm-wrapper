@@ -162,7 +162,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 
 	/**
 	 * Get a new bean record
-	 * * @return mixed the new bean object
+	 * * @return ".$entityName." the new bean object
 	 */
 	public function create(){
 		return new $entityName();
@@ -171,7 +171,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	/**
 	 * Get a bean by it's Id
 	 * @param mixed \$id
-	 * @return mixed the bean object
+	 * @return ".$entityName." the bean object
 	 */
 	public function getById(\$id){
 		return \$this->find(\$id);
@@ -188,7 +188,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	
 	/**
 	 * Returns the lis of beans
-	 * @return array<mixed> array of bean objects
+	 * @return array[".$entityName."] array of bean objects
 	 */
 	public function getList(){
 		return \$this->findAll();
