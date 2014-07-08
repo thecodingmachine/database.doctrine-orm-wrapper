@@ -160,6 +160,8 @@ class EntityManagerController extends Controller  {
 		$config->getProperty("metadataDriverImpl")->setValue($annotationDriver);
 		$config->getProperty("proxyDir")->setOrigin('php')->setValue('return ROOT_PATH."'.addslashes($proxyPath).'";');
 		$config->getProperty("proxyNamespace")->setValue($proxyNamespace);
+		// Proxy classes are generated in development mode only.
+		$config->getProperty("autoGenerateProxyClasses")->setOrigin('config')->setValue('DEBUG');
 		
 		$em->getProperty("conn")->setValue($dbalConnection);
 		$em->getProperty("config")->setValue($config);
