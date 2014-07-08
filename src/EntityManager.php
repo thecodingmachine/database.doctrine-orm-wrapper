@@ -9,15 +9,19 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Configuration;
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\ORMException;
+use Mouf\Validator\MoufValidatorInterface;
+use Mouf\Validator\MoufValidatorResult;
+use Mouf\MoufManager;
 
 /**
  * This is a very simple wrapper around Doctrine's EntityManager that exposes its contructor as "public".
  * This allows calling the constructor directly using Mouf.
  *
- * @author David N��grier <david@mouf-php.com>
- * @ExtendedAction {"name":"Update DBSchema", "url":"entityManagerInstall/", "default":false}
+ * @author David Négrier <david@mouf-php.com>
+ * @ExtendedAction {"name":"Generate DAOs", "url":"entityManagerInstall/", "default":false}
+ * @ExtendedAction {"name":"Update DB schema", "url":"entityManagerInstall/generate_schema", "default":false}
  */
-class EntityManager extends \Doctrine\ORM\EntityManager
+class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidatorInterface
 {
 
 	private $sourceDirectory;
@@ -235,5 +239,21 @@ class $daoClassName extends $daoBaseClassName {
 	}
 	public function setDaoNamespace($daoNamespace){
 		$this->daoNamespace = $daoNamespace;
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see \Mouf\Validator\MoufValidatorInterface::validateInstance()
+	 */
+	public function validateInstance() {
+		$instanceName = MoufManager::getMoufManager()->findInstanceName($this);
+		
+		$sql = $this->getSchemaUpdateSQL();
+		// Let's validate that the schema and the entities do match
+		if ( ! empty($sql)) {
+			return new MoufValidatorResult(MoufValidatorResult::ERROR, "<b>Doctrine ORM:</b> Your database schema does not match the Doctrine entities in your code. <a href='".ROOT_URL."vendor/mouf/mouf/editLabels/createMessageFile?name=".$instanceName."&selfedit=false&language=default' class='btn btn-danger'>Fix database schema to match entities</a>");	
+		}
+		
+		return new MoufValidatorResult(MoufValidatorResult::SUCCESS, "<b>Doctrine ORM:</b> Your database schema matches your entities.");
 	}
 }

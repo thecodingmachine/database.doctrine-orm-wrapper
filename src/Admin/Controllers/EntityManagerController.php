@@ -115,7 +115,7 @@ class EntityManagerController extends Controller  {
 	 * @Logged
 	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
 	 */
-	public function test($sourceDirectory, $entitiesNamespace, $proxyNamespace, $daoNamespace, $instanceName, $selfedit, $installMode = null) {
+	public function do_generate_daos($sourceDirectory, $entitiesNamespace, $proxyNamespace, $daoNamespace, $instanceName, $selfedit, $installMode = null) {
 		$this->instanceName = $instanceName;
 		$this->selfedit = $selfedit;
 		$this->installMode = $installMode;
@@ -138,7 +138,7 @@ class EntityManagerController extends Controller  {
 			$em = $this->moufManager->getInstanceDescriptor($instanceName);
 			$config = $em->getProperty("config")->getValue();
 		}
-
+		
 		$entitiesPath = $sourceDirectory . str_replace("\\", "/", $entitiesNamespace);
 		$proxyPath = $sourceDirectory . str_replace("\\", "/", $proxyNamespace);
 		$daoPath = $sourceDirectory . str_replace("\\", "/", $daoNamespace);
@@ -166,18 +166,46 @@ class EntityManagerController extends Controller  {
 		$em->getProperty("conn")->setValue($dbalConnection);
 		$em->getProperty("config")->setValue($config);
 		$em->getProperty("eventManager")->setValue($eventManager);
-
+		
 		$em->getProperty("sourceDirectory")->setValue($sourceDirectory);
 		$em->getProperty("entitiesNamespace")->setValue($entitiesNamespace);
 		$em->getProperty("proxyNamespace")->setValue($proxyNamespace);
 		$em->getProperty("daoNamespace")->setValue($daoNamespace);
 		
-		//Update connection to get the same configuration instance 
+		//Update connection to get the same configuration instance
 		$dbalConnection->getProperty("config")->setValue($config);
 		
 		$this->moufManager->rewriteMouf();
 		
 		$proxy = new InstanceProxy($instanceName);
+		$daoData = $proxy->generateDAOs();
+		
+		header("Location: generate_schema?name=".urlencode($instanceName)."&selfedit=".urlencode($selfedit)."&installMode=".urlencode($installMode));
+	}
+	
+	/**
+	 * Displays the "schema generation screen"
+	 *
+	 * @Action
+	 * @Logged
+	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
+	 */
+	public function generate_schema($name, $selfedit = "false", $installMode = null) {
+		$this->instanceName = $name;
+		$this->selfedit = $selfedit;
+		$this->installMode = $installMode;
+		
+		if ($selfedit == "true") {
+			$this->moufManager = MoufManager::getMoufManager();
+		} else {
+			$this->moufManager = MoufManager::getMoufManagerHiddenInstance();
+		}
+		
+		$constants = $this->moufManager->getConfigManager()->getDefinedConstants();
+		$this->debugMode = $constants['DEBUG'];
+		
+		
+		$proxy = new InstanceProxy($name);
 		$this->sql = $proxy->getSchemaUpdateSQL();
 		
 		$this->contentBlock->addFile(__DIR__."/../views/install2.php", $this);
@@ -190,7 +218,7 @@ class EntityManagerController extends Controller  {
 	 * @Logged
 	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
 	 */
-	public function install($instanceName, $selfedit, $installMode = null) {
+	public function install($instanceName, $selfedit, $installMode = null, $generateDaos = null) {
 		if ($selfedit == "true") {
 			$this->moufManager = MoufManager::getMoufManager();
 		} else {
@@ -199,7 +227,9 @@ class EntityManagerController extends Controller  {
 		
 		$proxy = new InstanceProxy($instanceName);
 		$fileName = $proxy->updateSchema();
-		$daoData = $proxy->generateDAOs();
+		if ($generateDaos) {
+			$daoData = $proxy->generateDAOs();
+		}
 		$em = $this->moufManager->getInstanceDescriptor($instanceName);
 		
 		
