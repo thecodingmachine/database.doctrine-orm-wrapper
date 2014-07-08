@@ -251,7 +251,7 @@ class $daoClassName extends $daoBaseClassName {
 		$sql = $this->getSchemaUpdateSQL();
 		// Let's validate that the schema and the entities do match
 		if ( ! empty($sql)) {
-			return new MoufValidatorResult(MoufValidatorResult::ERROR, "<b>Doctrine ORM:</b> Your database schema does not match the Doctrine entities in your code. <a href='".ROOT_URL."vendor/mouf/mouf/editLabels/createMessageFile?name=".$instanceName."&selfedit=false&language=default' class='btn btn-danger'>Fix database schema to match entities</a>");	
+			return new MoufValidatorResult(MoufValidatorResult::ERROR, "<b>Doctrine ORM:</b> Your database schema does not match the Doctrine entities in your code. <a href='".ROOT_URL."vendor/mouf/mouf/entityManagerInstall/generate_schema?name=".$instanceName."&selfedit=false' class='btn btn-danger'><i class='icon icon-white icon-wrench'></i> Fix database schema to match entities</a>");	
 		}
 		
 		return new MoufValidatorResult(MoufValidatorResult::SUCCESS, "<b>Doctrine ORM:</b> Your database schema matches your entities.");

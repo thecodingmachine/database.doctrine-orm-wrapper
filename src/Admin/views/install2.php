@@ -37,6 +37,6 @@ use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
 	</div>
 	
 	<div class="control-group">
-		<button name="action" value="install" type="submit" class="btn btn-danger">Update database schema</button>
+		<button name="action" value="install" type="submit" class="btn btn-danger"><i class="icon icon-white icon-refresh"></i> Update database schema</button>
 	</div>
 </form>
