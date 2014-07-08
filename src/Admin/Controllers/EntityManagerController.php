@@ -58,6 +58,7 @@ class EntityManagerController extends Controller  {
 	protected $psrMode;
 	protected $instanceName;
 	protected $patchable;
+	protected $nbAwaitingPatches;
 	
 	protected $errors = array();
 	
@@ -202,6 +203,12 @@ return $dbalConnection;');
 		$this->selfedit = $selfedit;
 		$this->installMode = $installMode;
 		$this->patchable = class_exists("Mouf\\Database\\Patcher\\DatabasePatchInstaller");
+		if ($this->patchable) {
+			// Let's check if there are awaiting patches. If so, let's display a warning.
+			$patchService = new InstanceProxy("patchService");
+			/* @var $patchService PatchService */
+			$this->nbAwaitingPatches = $patchService->getNbAwaitingPatchs();
+		}
 		
 		if ($selfedit == "true") {
 			$this->moufManager = MoufManager::getMoufManager();
