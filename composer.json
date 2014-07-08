@@ -26,6 +26,9 @@
 		"mouf/utils.constants.debug" : "~1.0",
 		"mouf/mouf-validators-interface" : "~2.0"
 	},
+	"suggest": {
+        "mouf/database.patcher": "Allows creating DB patches automatically on schema update"
+    },
 	"autoload" : {
 		"psr-4" : {
 			"Mouf\\Doctrine\\ORM\\" : "src/"

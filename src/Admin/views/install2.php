@@ -18,16 +18,17 @@ use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
 		if (empty($this->sql)){
 		?>
 		<div class="info">
-			There is no requests to be executed
+			There is no request to be executed. Your database schema and the Doctrine entities are synchronized.
 		</div>
 		<?php
-		}
+		} else {
 		?>
 		<pre><code class="sql"><?php 
 		foreach ($this->sql as $request){
 			echo $request.";\n";
 		}
 		?></code></pre>
+		<?php } ?>
 	</div>
 	
 	<div class="control-group">
@@ -36,7 +37,15 @@ use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
 		</label>
 	</div>
 	
+	<?php if ($this->patchable): ?>
 	<div class="control-group">
-		<button name="action" value="install" type="submit" class="btn btn-danger"><i class="icon icon-white icon-refresh"></i> Update database schema</button>
+		<label class="checkbox">
+			<input type="checkbox" name="generatePatch" checked="checked"' /> Store update in a SQL Patch
+		</label>
+	</div>
+	<?php endif; ?>
+	
+	<div class="control-group">
+		<button name="action" value="install" type="submit" class="btn btn-danger" <?php if (empty($this->sql)){ echo "disabled='disabled'"; }?>><i class="icon icon-white icon-refresh"></i> Update database schema</button>
 	</div>
 </form>

@@ -16,6 +16,7 @@ use Mouf\MoufManager;
 use Mouf\Mvc\Splash\Controllers\Controller;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOException;
+use Mouf\Database\Patcher\DatabasePatchInstaller;
 
 /**
  * The controller managing the install process.
@@ -56,6 +57,7 @@ class EntityManagerController extends Controller  {
 	protected $daoNamespace;
 	protected $psrMode;
 	protected $instanceName;
+	protected $patchable;
 	
 	protected $errors = array();
 	
@@ -162,8 +164,13 @@ class EntityManagerController extends Controller  {
 		$config->getProperty("proxyNamespace")->setValue($proxyNamespace);
 		// Proxy classes are generated in development mode only.
 		$config->getProperty("autoGenerateProxyClasses")->setOrigin('config')->setValue('DEBUG');
+		// Ignore table "patches" because it is managed by our patch system.
+		$config->getProperty("filterSchemaAssetsExpression")->setValue("/^(?!patches$).*/");
 		
-		$em->getProperty("conn")->setValue($dbalConnection);
+		// On the dbalConnection, we register a mapping type "enum"=>"string"
+		$em->getProperty("conn")->setOrigin('php')->setValue('$dbalConnection = $container->get("dbalConnection");
+$dbalConnection->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");
+return $dbalConnection;');
 		$em->getProperty("config")->setValue($config);
 		$em->getProperty("eventManager")->setValue($eventManager);
 		
@@ -194,6 +201,7 @@ class EntityManagerController extends Controller  {
 		$this->instanceName = $name;
 		$this->selfedit = $selfedit;
 		$this->installMode = $installMode;
+		$this->patchable = class_exists("Mouf\\Database\\Patcher\\DatabasePatchInstaller");
 		
 		if ($selfedit == "true") {
 			$this->moufManager = MoufManager::getMoufManager();
@@ -203,6 +211,7 @@ class EntityManagerController extends Controller  {
 		
 		$constants = $this->moufManager->getConfigManager()->getDefinedConstants();
 		$this->debugMode = $constants['DEBUG'];
+		
 		
 		
 		$proxy = new InstanceProxy($name);
@@ -218,7 +227,7 @@ class EntityManagerController extends Controller  {
 	 * @Logged
 	 * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
 	 */
-	public function install($instanceName, $selfedit, $installMode = null, $generateDaos = null) {
+	public function install($instanceName, $selfedit, $installMode = null, $generateDaos = null, $generatePatch = null) {
 		if ($selfedit == "true") {
 			$this->moufManager = MoufManager::getMoufManager();
 		} else {
@@ -226,6 +235,34 @@ class EntityManagerController extends Controller  {
 		}
 		
 		$proxy = new InstanceProxy($instanceName);
+		
+		if ($generatePatch) {
+			$patchName = date("Y-m-d")."-patch-doctrine-".date("H.i.s");
+			$sqls = $proxy->getSchemaUpdateSQL();
+			$sql = implode(";\n", $sqls).";\n";
+			
+			// Let's create the directory
+			$baseDirUpSqlFile = ROOT_PATH."../../../database/up";
+			if (!file_exists($baseDirUpSqlFile)) {
+				$old = umask(0);
+				$result = @mkdir($baseDirUpSqlFile, 0775, true);
+				umask($old);
+				if (!$result) {
+					set_user_message("Sorry, impossible to create directory '".htmlentities($baseDirUpSqlFile)."'. Please check directory permissions.");
+					header("Location: generate_schema?name=".urlencode($instanceName)."&selfedit=".urlencode($selfedit));
+					return;
+				}
+			}
+			if (!is_writable($baseDirUpSqlFile)) {
+				set_user_message("Sorry, directory '".htmlentities($baseDirUpSqlFile)."' is not writable. Please check directory permissions.");
+				header("Location: generate_schema?name=".urlencode($instanceName)."&selfedit=".urlencode($selfedit));
+				return;
+			}
+			file_put_contents($baseDirUpSqlFile."/".$patchName.".sql", $sql);
+			
+			DatabasePatchInstaller::registerPatch($this->moufManager, $patchName, "Doctrine patch to match DB schema with defined entities.", "database/up/".$patchName.".sql");
+		}
+		
 		$fileName = $proxy->updateSchema();
 		if ($generateDaos) {
 			$daoData = $proxy->generateDAOs();
@@ -244,6 +281,13 @@ class EntityManagerController extends Controller  {
 		}
 		
 		$this->moufManager->rewriteMouf();
+		
+		if ($generatePatch) {
+			// Now, let's mark this patch as "skipped".
+			$patchService = new InstanceProxy("patchService");
+			$patchService->skip($patchName);
+		}
+		
 		
 		if ($installMode){
 			InstallUtils::continueInstall($selfedit == "true");
