@@ -16,7 +16,7 @@ Unless you are developing your own autoload system, you should configure <strong
 <?php 
 } ?>
 
-<form action="generate_schema" class="form-horizontal">
+<form action="do_generate_daos" class="form-horizontal">
 	<input type="hidden" id="selfedit" name="selfedit" value="<?php echo plainstring_to_htmlprotected($this->selfedit) ?>" />
 	<input type="hidden" id="instanceName" name="instanceName" value="<?php echo plainstring_to_htmlprotected($this->instanceName); ?>" />
 	<input type="hidden" id="psrMode" name="psrMode" value="<?php echo plainstring_to_htmlprotected($this->psrMode); ?>" />
