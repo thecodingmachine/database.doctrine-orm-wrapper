@@ -142,7 +142,7 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 	 * @return $entityName
 	 */
 	public function findUniqueBy$field(\$fieldValue) {
-		return \$this->findUniqueBy(array($field => \$fieldValue));
+		return \$this->findUniqueBy(array(".var_export($fieldName, true)." => \$fieldValue));
 	}";
 			}
 		}
