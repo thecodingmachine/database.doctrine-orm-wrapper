@@ -133,6 +133,16 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 	 */
 	public function findOneBy$field(\$fieldValue, \$orderBy = null) {
 		return \$this->__call('findOneBy$field', array(\$fieldValue, \$orderBy));
+	}
+
+	/**
+	 * Finds only one entity by $field.
+     * Throw an exception if more than one entity was found.
+	 * @param mixed \$fieldValue the value of the filtered field
+	 * @return $entityName
+	 */
+	public function findUniqueBy$field(\$fieldValue) {
+		return \$this->findUniqueBy(array(".var_export($fieldName, true)." => \$fieldValue));
 	}";
 			}
 		}
@@ -148,6 +158,7 @@ namespace $this->daoNamespace;
 use Mouf\\Database\\DAOInterface;
 use Mouf\\Doctrine\\ORM\\EntityManager;
 use Doctrine\\ORM\\EntityRepository;
+use Doctrine\\ORM\\NonUniqueResultException;
 use $entityClass;
 
 /**
@@ -198,6 +209,27 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 		return \$this->findAll();
 	}
 	
+	/**
+     * Finds only one entity. The criteria must contain all the elements needed to find a unique entity.
+     * Throw an exception if more than one entity was found.
+     *
+     * @param array \$criteria
+     *
+     * @return ".$entityName." the bean object
+     */
+    public function findUniqueBy(array \$criteria)
+    {
+        \$result = \$this->findBy(\$criteria);
+
+        if(count(\$result) == 1){
+            return \$result[0];
+        }elseif(count(\$result) > 1){
+            throw new NonUniqueResultException('More than one $entityName was found');
+        }else{
+           return null;
+        }
+    }
+
 	$magicCallsStr
 }";
 		$fileName = $daoBaseClassName . ".php";
