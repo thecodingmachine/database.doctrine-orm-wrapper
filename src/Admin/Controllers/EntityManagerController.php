@@ -223,7 +223,10 @@ return $dbalConnection;');
 		
 		$proxy = new InstanceProxy($name);
 		$this->sql = $proxy->getSchemaUpdateSQL();
-		
+		if (empty($this->sql) && $installMode == 1){
+			InstallUtils::continueInstall($selfedit == "true");
+			return;
+		}
 		$this->contentBlock->addFile(__DIR__."/../views/install2.php", $this);
 		$this->template->toHtml();
 	}
