@@ -111,8 +111,8 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 		$magicCallsStr = "";
 		foreach($data->fieldNames as $fieldName){
 			if (array_search($fieldName, $data->identifier) === false){
-                        $field = \Doctrine\Common\Util\Inflector::classify(str_replace('.',' ',$fieldName));
-                        $magicCallsStr .= "
+                                $field = \Doctrine\Common\Util\Inflector::classify(str_replace('.',' ',$fieldName));
+                                $magicCallsStr .= "
 	/**
 	 * Wrapper around the magic __call implementations of the findBy[Field] function to get autocompletion
 	 * @param mixed \$fieldValue the value of the filtered field
