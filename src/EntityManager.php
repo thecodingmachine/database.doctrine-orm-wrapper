@@ -111,7 +111,7 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 		$magicCallsStr = "";
 		foreach($data->fieldNames as $fieldName){
 			if (array_search($fieldName, $data->identifier) === false){
-				$field = \Doctrine\Common\Util\Inflector::classify($fieldName);
+				$field = \Doctrine\Common\Util\Inflector::classify(str_replace('.',' ',$fieldName));
 				$magicCallsStr .= "
 	/**
 	 * Wrapper around the magic __call implementations of the findBy[Field] function to get autocompletion
@@ -122,7 +122,7 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 	 * @return ".$entityName."[]
 	 */
 	public function findBy$field(\$fieldValue, \$orderBy = null, \$limit = null, \$offset = null) {
-		return \$this->__call('findBy$field', array(\$fieldValue, \$orderBy, \$limit, \$offset));
+		return \$this->findBy(array(".var_export($fieldName, true)." => \$fieldValue), \$orderBy, \$limit, \$offset);
 	}
 
 	/**
@@ -132,7 +132,7 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 	 * @return $entityName
 	 */
 	public function findOneBy$field(\$fieldValue, \$orderBy = null) {
-		return \$this->__call('findOneBy$field', array(\$fieldValue, \$orderBy));
+		return \$this->findOneBy(array(".var_export($fieldName, true)." => \$fieldValue), \$orderBy);
 	}
 
 	/**
