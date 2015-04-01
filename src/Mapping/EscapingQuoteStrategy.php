@@ -20,6 +20,8 @@
 namespace Mouf\Doctrine\ORM\Mapping;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\ORM\Mapping\QuoteStrategy;
+use Doctrine\ORM\Mapping\ClassMetadata;
 
 /**
  * A set of rules for determining the physical column, alias and table quotes and automatically escape database reserved
