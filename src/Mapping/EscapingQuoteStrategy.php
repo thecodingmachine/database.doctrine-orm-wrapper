@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -25,7 +26,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 
 /**
  * A set of rules for determining the physical column, alias and table quotes and automatically escape database reserved
- * keyword
+ * keyword.
  *
  *@author  Xavier HUBERTY <x.huberty@thecodingmachine.com>
  */
@@ -36,13 +37,14 @@ class EscapingQuoteStrategy implements QuoteStrategy
      */
     public function getColumnName($fieldName, ClassMetadata $class, AbstractPlatform $platform)
     {
-        if(isset($class->fieldMappings[$fieldName]['quoted'])){
+        if (isset($class->fieldMappings[$fieldName]['quoted'])) {
             return $platform->quoteIdentifier($class->fieldMappings[$fieldName]['columnName']);
         }
         $reservedKeyList = $platform->getReservedKeywordsList();
-        if($reservedKeyList->isKeyword($fieldName)){
+        if ($reservedKeyList->isKeyword($fieldName)) {
             return $platform->quoteIdentifier($class->fieldMappings[$fieldName]['columnName']);
         }
+
         return $class->fieldMappings[$fieldName]['columnName'];
     }
 
@@ -51,14 +53,15 @@ class EscapingQuoteStrategy implements QuoteStrategy
      */
     public function getTableName(ClassMetadata $class, AbstractPlatform $platform)
     {
-        if(isset($class->table['quoted'])){
+        if (isset($class->table['quoted'])) {
             return $platform->quoteIdentifier($class->table['name']);
         }
         $reservedKeyList = $platform->getReservedKeywordsList();
-        if($reservedKeyList->isKeyword($class->table['name'])){
+        if ($reservedKeyList->isKeyword($class->table['name'])) {
             return $platform->quoteIdentifier($class->table['name']);
         }
-         return $class->table['name'];
+
+        return $class->table['name'];
     }
 
     /**
@@ -66,13 +69,14 @@ class EscapingQuoteStrategy implements QuoteStrategy
      */
     public function getSequenceName(array $definition, ClassMetadata $class, AbstractPlatform $platform)
     {
-        if(isset($definition['quoted'])){
+        if (isset($definition['quoted'])) {
             return $platform->quoteIdentifier($class->table['name']);
         }
         $reservedKeyList = $platform->getReservedKeywordsList();
-        if($reservedKeyList->isKeyword($definition['sequenceName'])){
+        if ($reservedKeyList->isKeyword($definition['sequenceName'])) {
             return $platform->quoteIdentifier($definition['sequenceName']);
         }
+
         return $definition['sequenceName'];
     }
 
@@ -81,13 +85,14 @@ class EscapingQuoteStrategy implements QuoteStrategy
      */
     public function getJoinColumnName(array $joinColumn, ClassMetadata $class, AbstractPlatform $platform)
     {
-        if(isset($joinColumn['quoted'])){
+        if (isset($joinColumn['quoted'])) {
             return $platform->quoteIdentifier($joinColumn['name']);
         }
         $reservedKeyList = $platform->getReservedKeywordsList();
-        if($reservedKeyList->isKeyword($joinColumn['name'])){
+        if ($reservedKeyList->isKeyword($joinColumn['name'])) {
             return $platform->quoteIdentifier($joinColumn['name']);
         }
+
         return $joinColumn['name'];
     }
 
@@ -96,13 +101,14 @@ class EscapingQuoteStrategy implements QuoteStrategy
      */
     public function getReferencedJoinColumnName(array $joinColumn, ClassMetadata $class, AbstractPlatform $platform)
     {
-        if(isset($joinColumn['quoted'])){
+        if (isset($joinColumn['quoted'])) {
             return $platform->quoteIdentifier($joinColumn['referencedColumnName']);
         }
         $reservedKeyList = $platform->getReservedKeywordsList();
-        if($reservedKeyList->isKeyword($joinColumn['referencedColumnName'])){
+        if ($reservedKeyList->isKeyword($joinColumn['referencedColumnName'])) {
             return $platform->quoteIdentifier($joinColumn['referencedColumnName']);
         }
+
         return $joinColumn['referencedColumnName'];
     }
 
@@ -111,13 +117,14 @@ class EscapingQuoteStrategy implements QuoteStrategy
      */
     public function getJoinTableName(array $association, ClassMetadata $class, AbstractPlatform $platform)
     {
-        if(isset($association['joinTable']['quoted'])){
+        if (isset($association['joinTable']['quoted'])) {
             return $platform->quoteIdentifier($association['joinTable']['name']);
         }
         $reservedKeyList = $platform->getReservedKeywordsList();
-        if($reservedKeyList->isKeyword($association['joinTable']['name'])){
+        if ($reservedKeyList->isKeyword($association['joinTable']['name'])) {
             return $platform->quoteIdentifier($association['joinTable']['name']);
         }
+
         return $association['joinTable']['name'];
     }
 
@@ -138,15 +145,15 @@ class EscapingQuoteStrategy implements QuoteStrategy
             // Association defined as Id field
             $joinColumns            = $class->associationMappings[$fieldName]['joinColumns'];
             $assocQuotedColumnNames = array_map(
-                function ($joinColumn) use ($platform)
-                {
-                    if(isset($joinColumn['quoted'])){
+                function ($joinColumn) use ($platform) {
+                    if (isset($joinColumn['quoted'])) {
                         return $platform->quoteIdentifier($joinColumn['name']);
                     }
                     $reservedKeyList = $platform->getReservedKeywordsList();
-                    if($reservedKeyList->isKeyword($joinColumn['name'])){
+                    if ($reservedKeyList->isKeyword($joinColumn['name'])) {
                         return $platform->quoteIdentifier($joinColumn['name']);
                     }
+
                     return $joinColumn['name'];
                 },
                 $joinColumns
@@ -168,10 +175,10 @@ class EscapingQuoteStrategy implements QuoteStrategy
         //     If the alias is to long, characters are cut off from the beginning.
         // 3 ) Strip non alphanumeric characters
         // 4 ) Prefix with "_" if the result its numeric
-        $columnName = $columnName . '_' . $counter;
+        $columnName = $columnName.'_'.$counter;
         $columnName = substr($columnName, -$platform->getMaxIdentifierLength());
         $columnName = preg_replace('/[^A-Za-z0-9_]/', '', $columnName);
-        $columnName = is_numeric($columnName) ? '_' . $columnName : $columnName;
+        $columnName = is_numeric($columnName) ? '_'.$columnName : $columnName;
 
         return $platform->getSQLResultCasing($columnName);
     }

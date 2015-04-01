@@ -1,10 +1,9 @@
 <?php
+
 namespace Mouf\Doctrine\ORM;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
-
 use Doctrine\ORM\Tools\SchemaTool;
-
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Configuration;
 use Doctrine\Common\EventManager;
@@ -23,96 +22,101 @@ use Mouf\MoufManager;
  */
 class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidatorInterface
 {
+    private $sourceDirectory;
+    private $entitiesNamespace;
+    private $proxyNamespace;
+    private $daoNamespace;
 
-	private $sourceDirectory;
-	private $entitiesNamespace;
-	private $proxyNamespace;
-	private $daoNamespace;
+    /**
+     * Creates a new EntityManager that operates on the given database connection
+     * and uses the given Configuration and EventManager implementations.
+     *
+     * @param \Doctrine\DBAL\Connection     $conn
+     * @param \Doctrine\ORM\Configuration   $config
+     * @param \Doctrine\Common\EventManager $eventManager
+     */
+    public function __construct(Connection $conn, Configuration $config, EventManager $eventManager)
+    {
+        // Those security checks are usually performed in EntityManager::create
+        if (! $config->getMetadataDriverImpl()) {
+            throw ORMException::missingMappingDriverImpl();
+        }
+        if ($eventManager !== null && $conn->getEventManager() !== $eventManager) {
+            throw ORMException::mismatchedEventManager();
+        }
 
-	/**
-	 * Creates a new EntityManager that operates on the given database connection
-	 * and uses the given Configuration and EventManager implementations.
-	 *
-	 * @param \Doctrine\DBAL\Connection     $conn
-	 * @param \Doctrine\ORM\Configuration   $config
-	 * @param \Doctrine\Common\EventManager $eventManager
-	 */
-	public function __construct(Connection $conn, Configuration $config, EventManager $eventManager)
-	{
-		// Those security checks are usually performed in EntityManager::create
-		if ( ! $config->getMetadataDriverImpl()) {
-			throw ORMException::missingMappingDriverImpl();
-		}
-		if ($eventManager !== null && $conn->getEventManager() !== $eventManager) {
-			throw ORMException::mismatchedEventManager();
-		}
-		 
-		parent::__construct($conn, $config, $eventManager);
-	}
+        parent::__construct($conn, $config, $eventManager);
+    }
 
-	public function updateSchema(){
-		$metadata = $this->getMetadataFactory()->getAllMetadata();
-		if ( ! empty($metadata)) {
-			$tool = new SchemaTool($this);
-			$fileName = ROOT_PATH . "dump.sql";
-			$sqls = $tool->getCreateSchemaSql($metadata);
-			$dump = "";
-			foreach ($sqls as $sql){
-				$dump .= $sql . ";\n";
-			}
-			file_put_contents($fileName, $dump);
-			
-			$tool->updateSchema($metadata);
-		}
-		return $fileName;
-	}
-	
-	public function getSchemaUpdateSQL(){
-		$metadata = $this->getMetadataFactory()->getAllMetadata();
-		$sql = array();
-		if ( ! empty($metadata)) {
-			$tool = new SchemaTool($this);
-			$sql = $tool->getUpdateSchemaSql($metadata);
-		}
-		return $sql;
-	}
+    public function updateSchema()
+    {
+        $metadata = $this->getMetadataFactory()->getAllMetadata();
+        if (! empty($metadata)) {
+            $tool = new SchemaTool($this);
+            $fileName = ROOT_PATH.'dump.sql';
+            $sqls = $tool->getCreateSchemaSql($metadata);
+            $dump = '';
+            foreach ($sqls as $sql) {
+                $dump .= $sql.";\n";
+            }
+            file_put_contents($fileName, $dump);
 
-	public function generateDAOs(){
-		//Get Bean / Table list
-		$metadata = $this->getMetadataFactory()->getAllMetadata();
-		 
-		//Get Path where to generate dao files
-		$daoPath = ROOT_PATH . $this->sourceDirectory . str_replace("\\", "/", $this->daoNamespace);
-		if (!is_dir($daoPath)){
-			$oldUmask = umask();
-			umask(0);
-			$dirCreate = mkdir($daoPath, 0775, true);
-			umask($oldUmask);
-		}
-		
-		$daos = array();
-		foreach ($metadata as $data){
-			list($fullClassName, $className) = $this->generateDAO($data, $daoPath);
-			$daos[$fullClassName] = $className;
-		}
-		
-		return  $daos;
-	}
+            $tool->updateSchema($metadata);
+        }
 
-	private function generateDAO($data, $daoPath){
-		/* @var $data ClassMetaData */
-		$entityClass = $data->name;
-		$entityName = str_replace($this->entitiesNamespace . "\\", "", $data->name);
-		$tableName = $data->table['name'];
-		$daoClassName =  $entityName. "Dao";
-		$daoBaseClassName =  $entityName. "BaseDao";
-		
-		//generate magic _call functions : findOne & find By field
-		$magicCallsStr = "";
-		foreach($data->fieldNames as $fieldName){
-			if (array_search($fieldName, $data->identifier) === false){
-				$field = \Doctrine\Common\Util\Inflector::classify(str_replace('.',' ',$fieldName));
-				$magicCallsStr .= "
+        return $fileName;
+    }
+
+    public function getSchemaUpdateSQL()
+    {
+        $metadata = $this->getMetadataFactory()->getAllMetadata();
+        $sql = array();
+        if (! empty($metadata)) {
+            $tool = new SchemaTool($this);
+            $sql = $tool->getUpdateSchemaSql($metadata);
+        }
+
+        return $sql;
+    }
+
+    public function generateDAOs()
+    {
+        //Get Bean / Table list
+        $metadata = $this->getMetadataFactory()->getAllMetadata();
+
+        //Get Path where to generate dao files
+        $daoPath = ROOT_PATH.$this->sourceDirectory.str_replace("\\", '/', $this->daoNamespace);
+        if (!is_dir($daoPath)) {
+            $oldUmask = umask();
+            umask(0);
+            $dirCreate = mkdir($daoPath, 0775, true);
+            umask($oldUmask);
+        }
+
+        $daos = array();
+        foreach ($metadata as $data) {
+            list($fullClassName, $className) = $this->generateDAO($data, $daoPath);
+            $daos[$fullClassName] = $className;
+        }
+
+        return  $daos;
+    }
+
+    private function generateDAO($data, $daoPath)
+    {
+        /* @var $data ClassMetaData */
+        $entityClass = $data->name;
+        $entityName = str_replace($this->entitiesNamespace."\\", '', $data->name);
+        $tableName = $data->table['name'];
+        $daoClassName =  $entityName.'Dao';
+        $daoBaseClassName =  $entityName.'BaseDao';
+
+        //generate magic _call functions : findOne & find By field
+        $magicCallsStr = '';
+        foreach ($data->fieldNames as $fieldName) {
+            if (array_search($fieldName, $data->identifier) === false) {
+                $field = \Doctrine\Common\Util\Inflector::classify(str_replace('.', ' ', $fieldName));
+                $magicCallsStr .= "
 	/**
 	 * Wrapper around the magic __call implementations of the findBy[Field] function to get autocompletion
 	 * @param mixed \$fieldValue the value of the filtered field
@@ -144,10 +148,10 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 	public function findUniqueBy$field(\$fieldValue) {
 		return \$this->findUniqueBy(array(".var_export($fieldName, true)." => \$fieldValue));
 	}";
-			}
-		}
-		
-		$str = "<?php
+            }
+        }
+
+        $str = "<?php
 /*
 * This file has been automatically generated by Mouf/ORM.
 * DO NOT edit this file, as it might be overwritten.
@@ -173,7 +177,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	public function __construct(\$entityManager){
 		parent::__construct(\$entityManager, \$entityManager->getClassMetadata('$entityClass'));
 	}
-	
+
 
 	/**
 	 * Get a new bean record
@@ -182,7 +186,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	public function create(){
 		return new $entityName();
 	}
-	
+
 	/**
 	 * Get a bean by it's Id
 	 * @param mixed \$id
@@ -191,16 +195,16 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	public function getById(\$id){
 		return \$this->find(\$id);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * Peforms saving on a bean object
 	 * @param mixed bean object
 	 */
 	public function save(\$entity){
 		\$this->getEntityManager()->persist(\$entity);
 	}
-	
+
 	/**
 	 * Returns the lis of beans
 	 * @return array[".$entityName."] array of bean objects
@@ -208,7 +212,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	public function getList(){
 		return \$this->findAll();
 	}
-	
+
 	/**
      * Finds only one entity. The criteria must contain all the elements needed to find a unique entity.
      * Throw an exception if more than one entity was found.
@@ -232,11 +236,11 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 
 	$magicCallsStr
 }";
-		$fileName = $daoBaseClassName . ".php";
-		file_put_contents($daoPath . "/" . $fileName, $str);
-		@chmod($daoPath . "/" . $fileName, 0664);
-		
-		$str = "<?php
+        $fileName = $daoBaseClassName.'.php';
+        file_put_contents($daoPath.'/'.$fileName, $str);
+        @chmod($daoPath.'/'.$fileName, 0664);
+
+        $str = "<?php
 namespace $this->daoNamespace;
 
 use Mouf\\Database\\DAOInterface;
@@ -247,45 +251,51 @@ use Doctrine\\ORM\\EntityRepository;
 * The $daoClassName class will maintain the persistance of $entityName class into the $tableName table.
 */
 class $daoClassName extends $daoBaseClassName {
-	
+
 	/*** PUT YOUR SPECIFIC QUERIES HERE !! ***/
 
 }";
-		$fileName = $daoClassName . ".php";
-		if (!file_exists($daoPath . "/" . $fileName)){
-			file_put_contents($daoPath . "/" . $fileName, $str);
-			chmod($daoPath . "/" . $fileName, 0664);
-		}
-		
-		return array($this->daoNamespace . "\\" . $daoClassName , $daoClassName);
-	}
+        $fileName = $daoClassName.'.php';
+        if (!file_exists($daoPath.'/'.$fileName)) {
+            file_put_contents($daoPath.'/'.$fileName, $str);
+            chmod($daoPath.'/'.$fileName, 0664);
+        }
 
-	public function setSourceDirectory($sourceDirectory){
-		$this->sourceDirectory = $sourceDirectory;
-	}
-	public function setEntitiesNamespace($entitiesNamespace){
-		$this->entitiesNamespace = $entitiesNamespace;
-	}
-	public function setProxyNamespace($proxyNamespace){
-		$this->proxyNamespace = $proxyNamespace;
-	}
-	public function setDaoNamespace($daoNamespace){
-		$this->daoNamespace = $daoNamespace;
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see \Mouf\Validator\MoufValidatorInterface::validateInstance()
-	 */
-	public function validateInstance() {
-		$instanceName = MoufManager::getMoufManager()->findInstanceName($this);
-		
-		$sql = $this->getSchemaUpdateSQL();
-		// Let's validate that the schema and the entities do match
-		if ( ! empty($sql)) {
-			return new MoufValidatorResult(MoufValidatorResult::ERROR, "<b>Doctrine ORM:</b> Your database schema does not match the Doctrine entities in your code. <a href='".ROOT_URL."vendor/mouf/mouf/entityManagerInstall/generate_schema?name=".$instanceName."&selfedit=false' class='btn btn-danger'><i class='icon icon-white icon-wrench'></i> Fix database schema to match entities</a>");	
-		}
-		
-		return new MoufValidatorResult(MoufValidatorResult::SUCCESS, "<b>Doctrine ORM:</b> Your database schema matches your entities.");
-	}
+        return array($this->daoNamespace."\\".$daoClassName , $daoClassName);
+    }
+
+    public function setSourceDirectory($sourceDirectory)
+    {
+        $this->sourceDirectory = $sourceDirectory;
+    }
+    public function setEntitiesNamespace($entitiesNamespace)
+    {
+        $this->entitiesNamespace = $entitiesNamespace;
+    }
+    public function setProxyNamespace($proxyNamespace)
+    {
+        $this->proxyNamespace = $proxyNamespace;
+    }
+    public function setDaoNamespace($daoNamespace)
+    {
+        $this->daoNamespace = $daoNamespace;
+    }
+
+    /**
+     * (non-PHPdoc).
+     *
+     * @see \Mouf\Validator\MoufValidatorInterface::validateInstance()
+     */
+    public function validateInstance()
+    {
+        $instanceName = MoufManager::getMoufManager()->findInstanceName($this);
+
+        $sql = $this->getSchemaUpdateSQL();
+        // Let's validate that the schema and the entities do match
+        if (! empty($sql)) {
+            return new MoufValidatorResult(MoufValidatorResult::ERROR, "<b>Doctrine ORM:</b> Your database schema does not match the Doctrine entities in your code. <a href='".ROOT_URL.'vendor/mouf/mouf/entityManagerInstall/generate_schema?name='.$instanceName."&selfedit=false' class='btn btn-danger'><i class='icon icon-white icon-wrench'></i> Fix database schema to match entities</a>");
+        }
+
+        return new MoufValidatorResult(MoufValidatorResult::SUCCESS, '<b>Doctrine ORM:</b> Your database schema matches your entities.');
+    }
 }
