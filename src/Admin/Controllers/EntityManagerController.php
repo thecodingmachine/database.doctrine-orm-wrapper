@@ -135,8 +135,12 @@ class EntityManagerController extends Controller  {
 		if (!$this->moufManager->instanceExists($instanceName)){
 			$em = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\EntityManager");
 			$em->setName($instanceName);
+            $quoteStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\EscapingQuoteStrategy");
+            $quoteStrategy->setName("escapingQuoteStrategy");
 			$config = $this->moufManager->createInstance("Doctrine\\ORM\\Configuration");
 			$config->setName("doctrineConfiguration");
+            $configQuoteProperty = $config->getSetterProperty("setQuoteStrategy");
+            $configQuoteProperty->setValue($quoteStrategy);
 		}else{
 			$em = $this->moufManager->getInstanceDescriptor($instanceName);
 			$config = $em->getProperty("config")->getValue();
