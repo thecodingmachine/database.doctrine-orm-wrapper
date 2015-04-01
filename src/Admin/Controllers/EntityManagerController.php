@@ -144,6 +144,12 @@ class EntityManagerController extends Controller  {
 		}else{
 			$em = $this->moufManager->getInstanceDescriptor($instanceName);
 			$config = $em->getProperty("config")->getValue();
+            $configQuoteProperty = $config->getSetterProperty("setQuoteStrategy");
+            if(!$configQuoteProperty->isValueSet()){
+                $quoteStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\EscapingQuoteStrategy");
+                $quoteStrategy->setName("escapingQuoteStrategy");
+                $configQuoteProperty->setValue($quoteStrategy);
+            }
 		}
 		
 		$entitiesPath = $sourceDirectory . str_replace("\\", "/", $entitiesNamespace);
