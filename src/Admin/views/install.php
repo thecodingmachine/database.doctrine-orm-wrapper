@@ -1,19 +1,23 @@
-<?php 
+<?php
 use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
+
 /* @var $this EntityManagerController */
 ?>
 
 <h1>Configure your Entity Manager</h1>
-<?php if (!$this->autoloadDetected) { ?>
+<?php if (!$this->autoloadDetected) {
+    ?>
 <div class="alert">Warning! Could not detect the autoload section of your composer.json file.
 Unless you are developing your own autoload system, you should configure <strong>composer.json</strong> to <a href="http://getcomposer.org/doc/01-basic-usage.md#autoloading" target="_blank">define a source directory and a root namespace using PSR-0</a>.</div>
-<?php }else{
-?>	
+<?php 
+} else {
+    ?>
 <div class="success">
 	PSR-<?php echo $this->psrMode?> mode detected
 </div>
 <br/>
-<?php 
+<?php
+
 } ?>
 
 <form action="do_generate_daos" class="form-horizontal">
@@ -21,7 +25,7 @@ Unless you are developing your own autoload system, you should configure <strong
 	<input type="hidden" id="instanceName" name="instanceName" value="<?php echo plainstring_to_htmlprotected($this->instanceName); ?>" />
 	<input type="hidden" id="psrMode" name="psrMode" value="<?php echo plainstring_to_htmlprotected($this->psrMode); ?>" />
 	<input type="hidden" id="installMode" name="installMode" value="<?php echo plainstring_to_htmlprotected($this->installMode); ?>" />
-	
+
 	<div class="control-group">
 		<label for="sourceDirectory" class="control-label">Source Directory:</label>
 		<div class="controls">
