@@ -50,6 +50,9 @@
 				}, {
 					"title" : "Generated DAO classes",
 					"url" : "doc/daos.md"
+				}, {
+			  		"title" : "Writing packages that provide entities",
+			  		"url" : "doc/writing_packages.md"
 				}
 			],
 			"logo" : "logo.png",
