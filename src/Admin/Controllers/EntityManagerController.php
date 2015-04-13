@@ -157,6 +157,7 @@ class EntityManagerController extends Controller
         $daoPath = $sourceDirectory.str_replace("\\", '/', $daoNamespace);
 
         $fileSystem = new Filesystem();
+        $oldMask = umask(0);
         // Note: for some reason, the mode of mkdir is not accounted for. We need to call chmod on it
         // Not perfect: only the last dir takes the mode, not the intermediate directories.
         $fileSystem->mkdir(array(ROOT_PATH.'../../../'.$entitiesPath, ROOT_PATH.'../../../'.$proxyPath, ROOT_PATH.'../../../'.$daoPath), 0775);
@@ -165,6 +166,7 @@ class EntityManagerController extends Controller
         } catch (IOException $e) {
             // Do nothing because the change mode can send an error if the folder is associated to another user (in the same group)
         }
+        umask($oldMask);
 
         $annotationDriver = InstallUtils::getOrCreateInstance('annotationDriver', null, $this->moufManager);
         $annotationDriver->setCode('return new Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver($container->get(\'annotationReader\'), [ROOT_PATH . "'.$entitiesPath.'"]);');
@@ -290,17 +292,18 @@ return $dbalConnection;');
         $fileName = $proxy->updateSchema();
         if ($generateDaos) {
             $daoData = $proxy->generateDAOs();
-        }
-        $em = $this->moufManager->getInstanceDescriptor($instanceName);
 
-        foreach ($daoData as $fullClassName => $className) {
-            if (!$this->moufManager->instanceExists(lcfirst($className))) {
-                $daoInstance = $this->moufManager->createInstance($fullClassName);
-                $daoInstance->setName(lcfirst($className));
-            } else {
-                $daoInstance = $this->moufManager->getInstanceDescriptor(lcfirst($className));
+            $em = $this->moufManager->getInstanceDescriptor($instanceName);
+
+            foreach ($daoData as $fullClassName => $className) {
+                if (!$this->moufManager->instanceExists(lcfirst($className))) {
+                    $daoInstance = $this->moufManager->createInstance($fullClassName);
+                    $daoInstance->setName(lcfirst($className));
+                } else {
+                    $daoInstance = $this->moufManager->getInstanceDescriptor(lcfirst($className));
+                }
+                $daoInstance->getProperty('entityManager')->setValue($em);
             }
-            $daoInstance->getProperty('entityManager')->setValue($em);
         }
 
         $this->moufManager->rewriteMouf();

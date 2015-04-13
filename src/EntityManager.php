@@ -106,7 +106,9 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
     {
         /* @var $data ClassMetaData */
         $entityClass = $data->name;
-        $entityName = str_replace($this->entitiesNamespace."\\", '', $data->name);
+
+        // TODO: we should check that we generate DAOs only for OUR package (not the other entities of other packages)
+        $entityName = basename(str_replace("\\", '/', $data->name));
         $tableName = $data->table['name'];
         $daoClassName =  $entityName.'Dao';
         $daoBaseClassName =  $entityName.'BaseDao';
