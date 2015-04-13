@@ -1,6 +1,7 @@
 <?php
-namespace Mouf\Doctrine\ORM\Admin\Controllers;
+namespace Mouf\Doctrine\ORM\Admin;
 
+use Mouf\Actions\InstallUtils;
 use Mouf\MoufInstanceDescriptor;
 use Mouf\MoufManager;
 
@@ -79,9 +80,9 @@ class DoctrineInstallUtils {
     }
 
     private function addDriverToChain($namespace, MoufInstanceDescriptor $driverDescriptor) {
-        $defaultMappingDriver = $this->moufManager->getInstanceDescriptor('defaultMappingDriver');
-        $drivers = $defaultMappingDriver->getProperty('setDrivers')->getValue();
+        $defaultMappingDriver = $this->moufManager->getInstanceDescriptor('mappingDriverChain');
+        $drivers = $defaultMappingDriver->getSetterProperty('setDrivers')->getValue();
         $drivers[$namespace] = $driverDescriptor;
-        $defaultMappingDriver->getProperty('setDrivers')->setValue($drivers);
+        $defaultMappingDriver->getSetterProperty('setDrivers')->setValue($drivers);
     }
 }
