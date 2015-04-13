@@ -168,10 +168,18 @@ class EntityManagerController extends Controller
         }
         umask($oldMask);
 
-        $annotationDriver = InstallUtils::getOrCreateInstance('annotationDriver', null, $this->moufManager);
-        $annotationDriver->setCode('return new Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver($container->get(\'annotationReader\'), [ROOT_PATH . "'.$entitiesPath.'"]);');
+        $defaultMappingDriver = InstallUtils::getOrCreateInstance('defaultMappingDriver', null, $this->moufManager);
+        $defaultMappingDriver->setCode('return new Doctrine\\ORM\\Mapping\\Driver\\AnnotationDriver($container->get(\'annotationReader\'), [ROOT_PATH . "'.$entitiesPath.'"]);');
 
-        $config->getProperty('metadataDriverImpl')->setValue($annotationDriver);
+        if (!$this->moufManager->has('mappingDriverChain')) {
+            $mappingDriverChain = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\Driver\\MappingDriverChain");
+            $mappingDriverChain->setName('mappingDriverChain');
+            $mappingDriverChain->getProperty('defaultDriver')->setValue($defaultMappingDriver);
+        } else {
+            $mappingDriverChain = $this->moufManager->getInstanceDescriptor('mappingDriverChain');
+        }
+
+        $config->getProperty('metadataDriverImpl')->setValue($mappingDriverChain);
         $config->getProperty('proxyDir')->setOrigin('php')->setValue('return ROOT_PATH."'.addslashes($proxyPath).'";');
         $config->getProperty('proxyNamespace')->setValue($proxyNamespace);
         // Proxy classes are generated in development mode only.

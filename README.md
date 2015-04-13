@@ -30,3 +30,4 @@ For more information, please read the next steps:
  * [Defining properties for the `entityManager` instance](doc/define-properties.md)
  * [Create / Update your DB schema](doc/schema.md)
  * [Generated DAO classes](doc/daos.md)
+ * [Writing packages that provide entities](doc/writing_packages.md)
