@@ -95,6 +95,14 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 
         $daos = array();
         foreach ($metadata as $data) {
+            // we should check that we generate DAOs only for the root package (not the other entities of other packages)
+            $refClass = new \ReflectionClass($data->name);
+            $vendorDir = realpath(__DIR__.'/../../../');
+            $classFile = $refClass->getFileName();
+            if (strpos($classFile, $vendorDir) === 0) {
+                continue;
+            }
+
             list($fullClassName, $className) = $this->generateDAO($data, $daoPath);
             $daos[$fullClassName] = $className;
         }
@@ -107,7 +115,6 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
         /* @var $data ClassMetaData */
         $entityClass = $data->name;
 
-        // TODO: we should check that we generate DAOs only for OUR package (not the other entities of other packages)
         $entityName = basename(str_replace("\\", '/', $data->name));
         $tableName = $data->table['name'];
         $daoClassName =  $entityName.'Dao';
