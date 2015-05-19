@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Configuration;
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\ORMException;
+use Mouf\Composer\ClassNameMapper;
 use Mouf\Validator\MoufValidatorInterface;
 use Mouf\Validator\MoufValidatorResult;
 use Mouf\MoufManager;
@@ -22,7 +23,6 @@ use Mouf\MoufManager;
  */
 class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidatorInterface
 {
-    private $sourceDirectory;
     private $entitiesNamespace;
     private $proxyNamespace;
     private $daoNamespace;
@@ -84,15 +84,6 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
         //Get Bean / Table list
         $metadata = $this->getMetadataFactory()->getAllMetadata();
 
-        //Get Path where to generate dao files
-        $daoPath = ROOT_PATH.$this->sourceDirectory.str_replace("\\", '/', $this->daoNamespace);
-        if (!is_dir($daoPath)) {
-            $oldUmask = umask();
-            umask(0);
-            $dirCreate = mkdir($daoPath, 0775, true);
-            umask($oldUmask);
-        }
-
         $daos = array();
         foreach ($metadata as $data) {
             // we should check that we generate DAOs only for the root package (not the other entities of other packages)
@@ -103,15 +94,18 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
                 continue;
             }
 
-            list($fullClassName, $className) = $this->generateDAO($data, $daoPath);
+            list($fullClassName, $className) = $this->generateDAO($data);
             $daos[$fullClassName] = $className;
         }
 
         return  $daos;
     }
 
-    private function generateDAO($data, $daoPath)
+    private function generateDAO($data)
     {
+        //Get Path where to generate dao files
+        $classNameMapper = ClassNameMapper::createFromComposerFile(__DIR__.'/../../../../composer.json');
+
         /* @var $data ClassMetaData */
         $entityClass = $data->name;
 
@@ -119,6 +113,17 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
         $tableName = $data->table['name'];
         $daoClassName =  $entityName.'Dao';
         $daoBaseClassName =  $entityName.'BaseDao';
+
+        $daoPath = ROOT_PATH.'/'.$classNameMapper->getPossibleFileNames(rtrim($this->daoNamespace, '\\').'\\'.$daoClassName)[0];
+        $daoBasePath = ROOT_PATH.'/'.$classNameMapper->getPossibleFileNames(rtrim($this->daoNamespace, '\\').'\\'.$daoBaseClassName)[0];
+
+        $daoDir = dirname($daoPath);
+        if (!is_dir($daoDir)) {
+            $oldUmask = umask();
+            umask(0);
+            $dirCreate = mkdir($daoDir, 0775, true);
+            umask($oldUmask);
+        }
 
         //generate magic _call functions : findOne & find By field
         $magicCallsStr = '';
@@ -254,9 +259,8 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 
 	$magicCallsStr
 }";
-        $fileName = $daoBaseClassName.'.php';
-        file_put_contents($daoPath.'/'.$fileName, $str);
-        @chmod($daoPath.'/'.$fileName, 0664);
+        file_put_contents($daoBasePath, $str);
+        @chmod($daoBasePath, 0664);
 
         $str = "<?php
 namespace $this->daoNamespace;
@@ -273,19 +277,14 @@ class $daoClassName extends $daoBaseClassName {
 	/*** PUT YOUR SPECIFIC QUERIES HERE !! ***/
 
 }";
-        $fileName = $daoClassName.'.php';
-        if (!file_exists($daoPath.'/'.$fileName)) {
-            file_put_contents($daoPath.'/'.$fileName, $str);
-            chmod($daoPath.'/'.$fileName, 0664);
+        if (!file_exists($daoPath)) {
+            file_put_contents($daoPath, $str);
+            chmod($daoPath, 0664);
         }
 
         return array($this->daoNamespace."\\".$daoClassName , $daoClassName);
     }
 
-    public function setSourceDirectory($sourceDirectory)
-    {
-        $this->sourceDirectory = $sourceDirectory;
-    }
     public function setEntitiesNamespace($entitiesNamespace)
     {
         $this->entitiesNamespace = $entitiesNamespace;

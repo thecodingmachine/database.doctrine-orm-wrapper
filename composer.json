@@ -21,7 +21,7 @@
 		"doctrine/orm" : "~2.4",
 		"mouf/database.dao-interface" : "2.*",
 		"mouf/utils.common.doctrine-annotations-wrapper" : "~1.2",
-		"mouf/database.doctrine-dbal-wrapper" : "1.0.x-dev",
+		"mouf/database.doctrine-dbal-wrapper" : "~1.1",
 		"symfony/filesystem" : "~2.1",
 		"mouf/utils.constants.debug" : "~1.0",
 		"mouf/mouf-validators-interface" : "~2.0"
@@ -59,6 +59,9 @@
 			"require-admin" : [
 				"src/EntityManagerWrapperAdmin.php"
 			]
+		},
+		"branch-alias": {
+		    "dev-master": "1.1.x-dev"
 		}
 	}
 }
