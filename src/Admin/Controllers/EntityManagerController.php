@@ -3,6 +3,7 @@
 namespace Mouf\Doctrine\ORM\Admin\Controllers;
 
 use Mouf\Composer\ClassNameMapper;
+use Mouf\Console\ConsoleUtils;
 use Mouf\Html\Widgets\MessageService\Service\UserMessageInterface;
 use Mouf\MoufUtils;
 use Mouf\InstanceProxy;
@@ -205,6 +206,39 @@ return $dbalConnection;');
 
         //Update connection to get the same configuration instance
         $dbalConnection->getProperty('config')->setValue($config);
+
+        // Now, let's write the commands
+        $consoleUtils = new ConsoleUtils($this->moufManager);
+
+        // Let's configure the console
+        if (!$this->moufManager->instanceExists("ormConnectionHelper")){
+            $ormConnectionHelper = InstallUtils::getOrCreateInstance('ormConnectionHelper', 'Doctrine\\ORM\\Tools\\Console\\Helper\\EntityManagerHelper', $this->moufManager);
+            $ormConnectionHelper->getConstructorArgumentProperty("em")->setValue($em);
+            $consoleUtils->registerHelper($ormConnectionHelper, 'em');
+        }
+
+        $commands = [
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\ClearCache\\MetadataCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\ClearCache\\ResultCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\ClearCache\\QueryCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\SchemaTool\\CreateCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\SchemaTool\\UpdateCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\SchemaTool\\DropCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\EnsureProductionSettingsCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\ConvertDoctrine1SchemaCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\GenerateRepositoriesCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\GenerateEntitiesCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\GenerateProxiesCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\ConvertMappingCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\RunDqlCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\ValidateSchemaCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\InfoCommand',
+            '\\Doctrine\\ORM\\Tools\\Console\\Command\\MappingDescribeCommand',
+        ];
+
+        foreach ($commands as $command) {
+            $consoleUtils->registerCommand($this->moufManager->createInstance($command));
+        }
 
         $this->moufManager->rewriteMouf();
 
