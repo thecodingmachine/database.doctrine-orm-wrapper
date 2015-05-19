@@ -2,6 +2,7 @@
 
 namespace Mouf\Doctrine\ORM\Admin\Controllers;
 
+use Mouf\Composer\ClassNameMapper;
 use Mouf\Html\Widgets\MessageService\Service\UserMessageInterface;
 use Mouf\MoufUtils;
 use Mouf\InstanceProxy;
@@ -47,7 +48,6 @@ class EntityManagerController extends Controller
      */
     public $contentBlock;
 
-    protected $sourceDirectory;
     protected $entitiesNamespace;
     protected $proxyNamespace;
     protected $daoNamespace;
@@ -80,20 +80,18 @@ class EntityManagerController extends Controller
             $this->moufManager = MoufManager::getMoufManagerHiddenInstance();
         }
 
-        $autoloadNamespaces = MoufUtils::getAutoloadNamespaces2();
-        $this->psrMode = $autoloadNamespaces['psr'];
+        $classNameMapper = ClassNameMapper::createFromComposerFile(__DIR__.'/../../../../../../composer.json');
+        $managedNamespaces = $classNameMapper->getManagedNamespaces();
 
         $this->autoloadDetected = true;
         if ($this->moufManager->instanceExists($name)) {
             $instance = $this->moufManager->getInstanceDescriptor($name);
-            $this->sourceDirectory = $instance->getProperty('sourceDirectory')->getValue();
             $this->entitiesNamespace = $instance->getProperty('entitiesNamespace')->getValue();
             $this->proxyNamespace = $instance->getProperty('proxyNamespace')->getValue();
             $this->daoNamespace = $instance->getProperty('daoNamespace')->getValue();
         } else {
-            if ($autoloadNamespaces) {
-                $rootNamespace = $autoloadNamespaces[0]['namespace'].'\\';
-                $this->sourceDirectory = $autoloadNamespaces[0]['directory'];
+            if ($managedNamespaces) {
+                $rootNamespace = $classNameMapper->getManagedNamespaces()[0];
                 $this->entitiesNamespace = $rootNamespace."Model\\Entities";
                 $this->proxyNamespace = $rootNamespace."Model\\Proxies";
                 $this->daoNamespace = $rootNamespace."Model\\DAOs";
@@ -117,7 +115,7 @@ class EntityManagerController extends Controller
      *
      * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
      */
-    public function do_generate_daos($sourceDirectory, $entitiesNamespace, $proxyNamespace, $daoNamespace, $instanceName, $selfedit, $installMode = null)
+    public function do_generate_daos($entitiesNamespace, $proxyNamespace, $daoNamespace, $instanceName, $selfedit, $installMode = null)
     {
         $this->instanceName = $instanceName;
         $this->selfedit = $selfedit;
@@ -152,9 +150,16 @@ class EntityManagerController extends Controller
             }
         }
 
-        $entitiesPath = $sourceDirectory.str_replace("\\", '/', $entitiesNamespace);
-        $proxyPath = $sourceDirectory.str_replace("\\", '/', $proxyNamespace);
-        $daoPath = $sourceDirectory.str_replace("\\", '/', $daoNamespace);
+        $classNameMapper = ClassNameMapper::createFromComposerFile(__DIR__.'/../../../../../../composer.json');
+
+        $entitiesNamespace = rtrim($entitiesNamespace, '\\');
+        $proxyNamespace = rtrim($proxyNamespace, '\\');
+        $daoNamespace = rtrim($daoNamespace, '\\');
+
+        // Let's locate the path by locating a fake class in the namespace.
+        $entitiesPath = substr($classNameMapper->getPossibleFileNames($entitiesNamespace.'\\ZZZ')[0], 0, -7);
+        $proxyPath = substr($classNameMapper->getPossibleFileNames($proxyNamespace.'\\ZZZ')[0], 0, -7);
+        $daoPath = substr($classNameMapper->getPossibleFileNames($daoNamespace.'\\ZZZ')[0], 0, -7);
 
         $fileSystem = new Filesystem();
         $oldMask = umask(0);
@@ -194,7 +199,6 @@ return $dbalConnection;');
         $em->getProperty('config')->setValue($config);
         $em->getProperty('eventManager')->setValue($eventManager);
 
-        $em->getProperty('sourceDirectory')->setValue($sourceDirectory);
         $em->getProperty('entitiesNamespace')->setValue($entitiesNamespace);
         $em->getProperty('proxyNamespace')->setValue($proxyNamespace);
         $em->getProperty('daoNamespace')->setValue($daoNamespace);

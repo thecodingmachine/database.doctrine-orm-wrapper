@@ -10,14 +10,6 @@ use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
 <div class="alert">Warning! Could not detect the autoload section of your composer.json file.
 Unless you are developing your own autoload system, you should configure <strong>composer.json</strong> to <a href="http://getcomposer.org/doc/01-basic-usage.md#autoloading" target="_blank">define a source directory and a root namespace using PSR-0</a>.</div>
 <?php 
-} else {
-    ?>
-<div class="success">
-	PSR-<?php echo $this->psrMode?> mode detected
-</div>
-<br/>
-<?php
-
 } ?>
 
 <form action="do_generate_daos" class="form-horizontal">
@@ -26,18 +18,11 @@ Unless you are developing your own autoload system, you should configure <strong
 	<input type="hidden" id="psrMode" name="psrMode" value="<?php echo plainstring_to_htmlprotected($this->psrMode); ?>" />
 	<input type="hidden" id="installMode" name="installMode" value="<?php echo plainstring_to_htmlprotected($this->installMode); ?>" />
 
-	<div class="control-group">
-		<label for="sourceDirectory" class="control-label">Source Directory:</label>
-		<div class="controls">
-			<input type="text" id="sourceDirectory" name="sourceDirectory" value="<?php echo plainstring_to_htmlprotected($this->sourceDirectory) ?>" />
-			<span class="help-block">The path to the classes</span>
-		</div>
-	</div>
 	<div>
 		<label for="entitiesNamespace" class="control-label">Entities Namespace:</label>
 		<div class="controls">
 			<input type="text" id="entitiesNamespace" name="entitiesNamespace" value="<?php echo plainstring_to_htmlprotected($this->entitiesNamespace) ?>" />
-			<span class="help-block">The path where the Proxies should be generated</span>
+			<span class="help-block">The namespace for the entities to be generated</span>
 		</div>
 	</div>
 	<div>
