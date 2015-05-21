@@ -122,32 +122,16 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 
         //generate magic _call functions : findOne & find By field
         $magicCallsStr = '';
+        $magicCallMethodAnnotation = '';
         foreach ($data->fieldNames as $fieldName) {
             if (array_search($fieldName, $data->identifier) === false) {
                 $field = \Doctrine\Common\Util\Inflector::classify(str_replace('.', ' ', $fieldName));
+                $magicCallMethodAnnotation .="
+* @method $entityName findBy$field(\$fieldValue, \$orderBy = null, \$limit = null, \$offset = null)
+* @method $entityName findOneBy$field(\$fieldValue, \$orderBy = null)
+                ";
+
                 $magicCallsStr .= "
-	/**
-	 * Wrapper around the magic __call implementations of the findBy[Field] function to get autocompletion
-	 * @param mixed \$fieldValue the value of the filtered field
-	 * @param array|null \$orderBy the value of the filtered field
-	 * @param int|null \$limit the max elements to be returned
-	 * @param int|null \$offset the index of the first element to retrieve
-	 * @return ".$entityName."[]
-	 */
-	public function findBy$field(\$fieldValue, \$orderBy = null, \$limit = null, \$offset = null) {
-		return \$this->findBy(array(".var_export($fieldName, true)." => \$fieldValue), \$orderBy, \$limit, \$offset);
-	}
-
-	/**
-	 * Wrapper around the magic __call implementations of the findByOne[Field] function to get autocompletion
-	 * @param mixed \$fieldValue the value of the filtered field
-	 * @param array|null \$orderBy the value of the filtered field
-	 * @return $entityName
-	 */
-	public function findOneBy$field(\$fieldValue, \$orderBy = null) {
-		return \$this->findOneBy(array(".var_export($fieldName, true)." => \$fieldValue), \$orderBy);
-	}
-
 	/**
 	 * Finds only one entity by $field.
      * Throw an exception if more than one entity was found.
@@ -176,7 +160,7 @@ use $entityClass;
 
 /**
 * The $daoBaseClassName class will maintain the persistance of $entityName class into the $tableName table.
-*
+$magicCallMethodAnnotation
 */
 class $daoBaseClassName extends EntityRepository implements DAOInterface {
 
