@@ -206,7 +206,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	/**
 	 *
 	 * Peforms remove on a bean object
-	 * @param $entityName the bean object
+	 * @param $entityName \$entity the bean object
 	 */
 	public function remove($entityName \$entity){
 		\$this->getEntityManager()->remove(\$entity);
