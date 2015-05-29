@@ -136,12 +136,16 @@ class EntityManagerController extends Controller
             $em->setName($instanceName);
             $quoteStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\EscapingQuoteStrategy");
             $quoteStrategy->setName('escapingQuoteStrategy');
+            $namingStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\UnderscoreNamingStrategy");
+            $namingStrategy->setName('underscoreNamingStrategy');
             $doctrineApc = $this->moufManager->createInstance("Doctrine\\COMMON\\CACHE\\ApcCache");
             $doctrineApc->setName('doctrineApcCache');
             $config = $this->moufManager->createInstance("Doctrine\\ORM\\Configuration");
             $config->setName('doctrineConfiguration');
             $configQuoteProperty = $config->getSetterProperty('setQuoteStrategy');
             $configQuoteProperty->setValue($quoteStrategy);
+            $configNamingProperty = $config->getSetterProperty('setNamingStrategy');
+            $configNamingProperty->setValue($namingStrategy);
             $configQueryCacheProperty = $config->getSetterProperty('setQueryCacheImpl');
             $configQueryCacheProperty->setValue($doctrineApc);
             $configMetadataCacheProperty = $config->getSetterProperty('setMetadataCacheImpl');
