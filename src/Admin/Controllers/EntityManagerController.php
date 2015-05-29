@@ -134,40 +134,69 @@ class EntityManagerController extends Controller
         if (!$this->moufManager->instanceExists($instanceName)) {
             $em = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\EntityManager");
             $em->setName($instanceName);
+
             $quoteStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\EscapingQuoteStrategy");
             $quoteStrategy->setName('escapingQuoteStrategy');
+
             $namingStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\UnderscoreNamingStrategy");
             $namingStrategy->setName('underscoreNamingStrategy');
+
             $doctrineApc = $this->moufManager->createInstance("Doctrine\\COMMON\\CACHE\\ApcCache");
             $doctrineApc->setName('doctrineApcCache');
+
             $config = $this->moufManager->createInstance("Doctrine\\ORM\\Configuration");
             $config->setName('doctrineConfiguration');
+
             $configQuoteProperty = $config->getSetterProperty('setQuoteStrategy');
             $configQuoteProperty->setValue($quoteStrategy);
+
             $configNamingProperty = $config->getSetterProperty('setNamingStrategy');
             $configNamingProperty->setValue($namingStrategy);
+
             $configQueryCacheProperty = $config->getSetterProperty('setQueryCacheImpl');
             $configQueryCacheProperty->setValue($doctrineApc);
+
             $configMetadataCacheProperty = $config->getSetterProperty('setMetadataCacheImpl');
             $configMetadataCacheProperty->setValue($doctrineApc);
+
             $configResultCacheProperty = $config->getSetterProperty('setResultCacheImpl');
             $configResultCacheProperty->setValue($doctrineApc);
         } else {
             $em = $this->moufManager->getInstanceDescriptor($instanceName);
             $config = $em->getProperty('config')->getValue();
+
             $configQuoteProperty = $config->getSetterProperty('setQuoteStrategy');
             if (!$configQuoteProperty->isValueSet()) {
                 $quoteStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\EscapingQuoteStrategy");
                 $quoteStrategy->setName('escapingQuoteStrategy');
+                $configQuoteProperty->setValue($quoteStrategy);
+            }
+
+            $configNamingProperty = $config->getSetterProperty('setNamingStrategy');
+            if(!$configNamingProperty) {
+                $namingStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\UnderscoreNamingStrategy");
+                $namingStrategy->setName('underscoreNamingStrategy');
+                $configNamingProperty->setValue($namingStrategy);
+            }
+
+            $configMetadataCacheProperty = $config->getSetterProperty('setMetadataCacheImpl');
+            $configQueryCacheProperty = $config->getSetterProperty('setQueryCacheImpl');
+            $configResultCacheProperty = $config->getSetterProperty('setResultCacheImpl');
+            if(!$configMetadataCacheProperty || !$configQueryCacheProperty || !$configResultCacheProperty){
                 $doctrineApc = $this->moufManager->createInstance("Doctrine\\COMMON\\CACHE\\ApcCache");
                 $doctrineApc->setName('doctrineApcCache');
-                $configQuoteProperty->setValue($quoteStrategy);
-                $configQueryCacheProperty = $config->getSetterProperty('setQueryCacheImpl');
-                $configQueryCacheProperty->setValue($doctrineApc);
-                $configMetadataCacheProperty = $config->getSetterProperty('setMetadataCacheImpl');
-                $configMetadataCacheProperty->setValue($doctrineApc);
-                $configResultCacheProperty = $config->getSetterProperty('setResultCacheImpl');
-                $configResultCacheProperty->setValue($doctrineApc);
+
+                if(!$configQueryCacheProperty){
+                    $configQueryCacheProperty->setValue($doctrineApc);
+                }
+
+                if(!$configMetadataCacheProperty){
+                    $configMetadataCacheProperty->setValue($doctrineApc);
+                }
+
+                if(!$configResultCacheProperty){
+                    $configResultCacheProperty->setValue($doctrineApc);
+                }
             }
         }
 
