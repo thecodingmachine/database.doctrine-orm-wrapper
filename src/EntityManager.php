@@ -22,7 +22,7 @@ use Mouf\MoufManager;
  * @ExtendedAction {"name":"Generate DAOs", "url":"entityManagerInstall/", "default":false}
  * @ExtendedAction {"name":"Update DB schema", "url":"entityManagerInstall/generate_schema", "default":false}
  */
-class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidatorInterface
+class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidatorInterface,MoufEntityManagerInterface
 {
     private $entitiesNamespace;
     private $proxyNamespace;
