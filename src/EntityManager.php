@@ -2,6 +2,7 @@
 
 namespace Mouf\Doctrine\ORM;
 
+use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\DBAL\Connection;
@@ -69,13 +70,19 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 
     public function getSchemaUpdateSQL()
     {
+        $doctrineCache = $this->getConfiguration()->getMetadataCacheImpl();
+        if ($doctrineCache instanceof CacheProvider) {
+            $doctrineCache->deleteAll();
+        } else {
+            $doctrineCache->delete("*");
+        }
+        
         $metadata = $this->getMetadataFactory()->getAllMetadata();
         $sql = array();
         if (! empty($metadata)) {
             $tool = new SchemaTool($this);
             $sql = $tool->getUpdateSchemaSql($metadata);
         }
-
         return $sql;
     }
 

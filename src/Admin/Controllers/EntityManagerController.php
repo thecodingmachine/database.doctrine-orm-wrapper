@@ -87,9 +87,9 @@ class EntityManagerController extends Controller
         $this->autoloadDetected = true;
         if ($this->moufManager->instanceExists($name)) {
             $instance = $this->moufManager->getInstanceDescriptor($name);
-            $this->entitiesNamespace = $instance->getProperty('entitiesNamespace')->getValue();
-            $this->proxyNamespace = $instance->getProperty('proxyNamespace')->getValue();
-            $this->daoNamespace = $instance->getProperty('daoNamespace')->getValue();
+            $this->entitiesNamespace = $instance->getSetterProperty('setEntitiesNamespace')->getValue();
+            $this->proxyNamespace = $instance->getSetterProperty('setProxyNamespace')->getValue();
+            $this->daoNamespace = $instance->getSetterProperty('setDaoNamespace')->getValue();
         } else {
             if ($managedNamespaces) {
                 $rootNamespace = $classNameMapper->getManagedNamespaces()[0];
@@ -132,7 +132,7 @@ class EntityManagerController extends Controller
         $eventManager = $dbalConnection->getProperty('eventManager')->getValue();
 
         if (!$this->moufManager->instanceExists($instanceName)) {
-            $em = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\EntityManager");
+            $em = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\MoufResetableEntityManager");
             $em->setName($instanceName);
 
             $quoteStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\EscapingQuoteStrategy");
@@ -243,15 +243,16 @@ class EntityManagerController extends Controller
         $config->getProperty('filterSchemaAssetsExpression')->setValue('/^(?!patches$).*/');
 
         // On the dbalConnection, we register a mapping type "enum"=>"string"
+        $em->getProperty('entityManagerClassName')->setValue("Mouf\\Doctrine\\ORM\\EntityManager");
         $em->getProperty('conn')->setOrigin('php')->setValue('$dbalConnection = $container->get("dbalConnection");
 $dbalConnection->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");
 return $dbalConnection;');
         $em->getProperty('config')->setValue($config);
         $em->getProperty('eventManager')->setValue($eventManager);
 
-        $em->getProperty('entitiesNamespace')->setValue($entitiesNamespace);
-        $em->getProperty('proxyNamespace')->setValue($proxyNamespace);
-        $em->getProperty('daoNamespace')->setValue($daoNamespace);
+        $em->getSetterProperty('setEntitiesNamespace')->setValue($entitiesNamespace);
+        $em->getSetterProperty('setProxyNamespace')->setValue($proxyNamespace);
+        $em->getSetterProperty('setDaoNamespace')->setValue($daoNamespace);
 
         //Update connection to get the same configuration instance
         $dbalConnection->getProperty('config')->setValue($config);
