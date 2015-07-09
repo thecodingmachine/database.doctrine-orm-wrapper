@@ -138,10 +138,10 @@ class EntityManagerController extends Controller
             $quoteStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\EscapingQuoteStrategy");
             $quoteStrategy->setName('escapingQuoteStrategy');
 
-            $namingStrategy = $this->moufManager->createInstance("Mouf\\Doctrine\\ORM\\Mapping\\UnderscoreNamingStrategy");
+            $namingStrategy = $this->moufManager->createInstance("Doctrine\\ORM\\Mapping\\UnderscoreNamingStrategy");
             $namingStrategy->setName('underscoreNamingStrategy');
 
-            $doctrineApc = $this->moufManager->createInstance("Doctrine\\COMMON\\CACHE\\ApcCache");
+            $doctrineApc = $this->moufManager->createInstance("Doctrine\\Common\\Cache\\ApcCache");
             $doctrineApc->setName('doctrineApcCache');
 
             $config = $this->moufManager->createInstance("Doctrine\\ORM\\Configuration");
