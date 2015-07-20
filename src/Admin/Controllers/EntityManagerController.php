@@ -292,6 +292,7 @@ return $dbalConnection;');
 
         $this->moufManager->rewriteMouf();
 
+        //Todo: If we generate Dao's we might create all the instances
         $proxy = new InstanceProxy($instanceName);
         $daoData = $proxy->generateDAOs();
 
