@@ -165,7 +165,7 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 namespace $this->daoNamespace;
 
 use Mouf\\Database\\DAOInterface;
-use Mouf\\Doctrine\\ORM\\MoufResetableEntityManager;
+use Doctrine\\ORM\\EntityManagerInterface;
 use Doctrine\\ORM\\EntityRepository;
 use Doctrine\\ORM\\NonUniqueResultException;
 use $entityClass;
@@ -177,7 +177,7 @@ $magicCallMethodAnnotation
 class $daoBaseClassName extends EntityRepository implements DAOInterface {
 
 	/**
-	 * @param MoufResetableEntityManager \$entityManager
+	 * @param EntityManagerInterface \$entityManager
 	 */
 	public function __construct(\$entityManager){
 		parent::__construct(\$entityManager, \$entityManager->getClassMetadata('$entityClass'));
@@ -257,7 +257,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 namespace $this->daoNamespace;
 
 use Mouf\\Database\\DAOInterface;
-use Mouf\\Doctrine\\ORM\\EntityManager;
+use Doctrine\\ORM\\EntityManagerInterface;
 use Doctrine\\ORM\\EntityRepository;
 
 /**
