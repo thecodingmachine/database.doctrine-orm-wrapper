@@ -189,7 +189,9 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 	 * * @return ".$entityName." the new bean object
 	 */
 	public function create(){
-		return new $entityName();
+		\$entity = new $entityName();
+		\$this->getEntityManager()->persist(\$entity);
+		return \$entity;
 	}
 
 	/**
