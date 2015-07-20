@@ -19,7 +19,7 @@ use Doctrine\Common\EventManager;
  * @ExtendedAction {"name":"Generate DAOs", "url":"entityManagerInstall/", "default":false}
  * @ExtendedAction {"name":"Update DB schema", "url":"entityManagerInstall/generate_schema", "default":false}
  */
-class MoufResetableEntityManager extends ResetableEntityManager implements MoufEntityManagerInterface
+class MoufResetableEntityManager extends ResetableEntityManager implements MoufEntityManagerInterface,MoufValidatorInterface
 {
     /**
      * Creates a new EntityManager that operates on the given database connection
