@@ -256,9 +256,6 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
         $str = "<?php
 namespace $this->daoNamespace;
 
-use Mouf\\Database\\DAOInterface;
-use Doctrine\\ORM\\EntityManagerInterface;
-use Doctrine\\ORM\\EntityRepository;
 
 /**
 * The $daoClassName class will maintain the persistance of $entityName class into the $tableName table.
