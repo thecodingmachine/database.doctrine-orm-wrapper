@@ -4,6 +4,7 @@ namespace Mouf\Doctrine\ORM;
 
 
 use Doctrine\ORM\ORMException;
+use Mouf\MoufManager;
 use Mouf\Validator\MoufValidatorInterface;
 use Mouf\Validator\MoufValidatorResult;
 use Doctrine\DBAL\Connection;
@@ -112,13 +113,14 @@ class MoufResetableEntityManager extends ResetableEntityManager implements MoufE
      */
     public function validateInstance()
     {
-        try{
-            return parent::getEntityManager()->validateInstance();
-        } catch(ORMException $e) {
-            if (!parent::getEntityManager()->isOpen()) {
-                $this->resetEntityManager();
-            }
-            throw $e;
+        $instanceName = MoufManager::getMoufManager()->findInstanceName($this);
+
+        $sql = $this->getSchemaUpdateSQL();
+        // Let's validate that the schema and the entities do match
+        if (! empty($sql)) {
+            return new MoufValidatorResult(MoufValidatorResult::ERROR, "<b>Doctrine ORM:</b> Your database schema does not match the Doctrine entities in your code. <a href='".ROOT_URL.'vendor/mouf/mouf/entityManagerInstall/generate_schema?name='.$instanceName."&selfedit=false' class='btn btn-danger'><i class='icon icon-white icon-wrench'></i> Fix database schema to match entities</a>");
         }
+
+        return new MoufValidatorResult(MoufValidatorResult::SUCCESS, '<b>Doctrine ORM:</b> Your database schema matches your entities.');
     }
 }
