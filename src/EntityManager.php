@@ -221,7 +221,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface {
 
 	/**
 	 * Returns the lis of beans
-	 * @return array[".$entityName."] array of bean objects
+	 * @return ".$entityName."[] array of bean objects
 	 */
 	public function getList(){
 		return \$this->findAll();
