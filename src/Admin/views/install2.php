@@ -53,7 +53,7 @@ use Mouf\Doctrine\ORM\Admin\Controllers\EntityManagerController;
 	<?php if ($this->patchable): ?>
 	<div class="control-group">
 		<label class="checkbox">
-			<input type="checkbox" name="generatePatch" <?php if ($this->debugMode) {
+			<input type="checkbox" name="generatePatch" <?php if ($this->debugMode && $this->generatePatch) {
     echo 'checked="checked"';
 } ?> /> Store update in a SQL Patch
 		</label>

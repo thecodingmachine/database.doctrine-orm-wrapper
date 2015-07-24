@@ -56,6 +56,7 @@ class EntityManagerController extends Controller
     protected $instanceName;
     protected $patchable;
     protected $nbAwaitingPatches;
+    protected $generatePatch = true;
 
     protected $errors = array();
 
@@ -336,6 +337,10 @@ return $dbalConnection;');
 
             return;
         }
+        if($this->moufManager->issetVariable("doctrine_".$name."_generatePatch")) {
+
+            $this->generatePatch = $this->moufManager->getVariable("doctrine_" . $name . "_generatePatch");
+        }
         $this->contentBlock->addFile(__DIR__.'/../views/install2.php', $this);
         $this->template->toHtml();
     }
@@ -347,7 +352,7 @@ return $dbalConnection;');
      *
      * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
      */
-    public function install($instanceName, $selfedit, $installMode = null, $generateDaos = null, $generatePatch = null)
+    public function install($instanceName, $selfedit, $installMode = null, $generateDaos = null, $generatePatch = false)
     {
         if ($selfedit == 'true') {
             $this->moufManager = MoufManager::getMoufManager();
@@ -356,6 +361,8 @@ return $dbalConnection;');
         }
 
         $proxy = new InstanceProxy($instanceName);
+
+        $this->moufManager->setVariable("doctrine_".$instanceName."_generatePatch", $generatePatch);
 
         if ($generatePatch) {
             $patchName = date('Y-m-d').'-patch-doctrine-'.date('H.i.s');
