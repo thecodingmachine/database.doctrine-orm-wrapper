@@ -364,36 +364,10 @@ return $dbalConnection;');
 
         $this->moufManager->setVariable("doctrine_".$instanceName."_generatePatch", $generatePatch);
 
-        if ($generatePatch) {
-            $patchName = date('Y-m-d').'-patch-doctrine-'.date('H.i.s');
-            $sqls = $proxy->getSchemaUpdateSQL();
-            $sql = implode(";\n", $sqls).";\n";
-
-            // Let's create the directory
-            $baseDirUpSqlFile = ROOT_PATH.'../../../database/up';
-            if (!file_exists($baseDirUpSqlFile)) {
-                $old = umask(0);
-                $result = @mkdir($baseDirUpSqlFile, 0775, true);
-                umask($old);
-                if (!$result) {
-                    set_user_message("Sorry, impossible to create directory '".htmlentities($baseDirUpSqlFile)."'. Please check directory permissions.");
-                    header('Location: generate_schema?name='.urlencode($instanceName).'&selfedit='.urlencode($selfedit));
-
-                    return;
-                }
-            }
-            if (!is_writable($baseDirUpSqlFile)) {
-                set_user_message("Sorry, directory '".htmlentities($baseDirUpSqlFile)."' is not writable. Please check directory permissions.");
-                header('Location: generate_schema?name='.urlencode($instanceName).'&selfedit='.urlencode($selfedit));
-
-                return;
-            }
-            file_put_contents($baseDirUpSqlFile.'/'.$patchName.'.sql', $sql);
-
-            DatabasePatchInstaller::registerPatch($this->moufManager, $patchName, 'Doctrine patch to match DB schema with defined entities.', 'database/up/'.$patchName.'.sql');
-        }
-
         $fileName = $proxy->updateSchema();
+        if ($generatePatch) {
+            DatabasePatchInstaller::generatePatch($this->moufManager,'Doctrine patch to match DB schema with defined entities.', $instanceName, $selfedit);
+        }
         if ($generateDaos) {
             $daoData = $proxy->generateDAOs();
 
@@ -411,12 +385,6 @@ return $dbalConnection;');
         }
 
         $this->moufManager->rewriteMouf();
-
-        if ($generatePatch) {
-            // Now, let's mark this patch as "skipped".
-            $patchService = new InstanceProxy('patchService');
-            $patchService->skip($patchName);
-        }
 
         if ($installMode) {
             InstallUtils::continueInstall($selfedit == 'true');
