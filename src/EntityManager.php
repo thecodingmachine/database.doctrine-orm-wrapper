@@ -168,10 +168,10 @@ class EntityManager extends \Doctrine\ORM\EntityManager implements MoufValidator
 
 namespace $this->daoNamespace;
 
-use Mouf\\Database\\DAOInterface;
 use Doctrine\\ORM\\EntityManagerInterface;
 use Doctrine\\ORM\\EntityRepository;
 use Doctrine\\ORM\\NonUniqueResultException;
+use Mouf\\Doctrine\\ORM\\Event\\SaveListenerInterface;
 use $entityClass;
 
 /**
@@ -179,66 +179,64 @@ use $entityClass;
 
 $magicCallMethodAnnotation
  */
-class $daoBaseClassName extends EntityRepository implements DAOInterface
+class $daoBaseClassName extends EntityRepository
 {
+
+    /**
+     * @var SaveListenerInterface[]
+     */
+    private \$saveListenerCollection;
+
     /**
      * @param EntityManagerInterface \$entityManager
+     * @param SaveListenerInterface[] \$saveListenerCollection
      */
-    public function __construct(\$entityManager)
+    public function __construct(EntityManagerInterface \$entityManager, SaveListenerInterface[] \$saveListenerCollection)
     {
         parent::__construct(\$entityManager, \$entityManager->getClassMetadata('$entityClass'));
+        \$this->saveListenerCollection = \$saveListenerCollection;
     }
 
     /**
-     * Get a new bean record.
+     * Get a new persistent entity
      *
-     * @return ".$entityName." the new bean object
+     * @return $entityName
      */
     public function create()
     {
-        return new $entityName();
+        \$entity = new $entityName();
+        \$this->getEntityManager->persist(\$entity);
+        return \$entity;
     }
 
     /**
-     * Get a bean by it's Id.
+     * Peforms a flush on the entity.
      *
-     * @param mixed \$id
-     *
-     * @return ".$entityName." the bean object
+     * @param $entityName
+     * @throws \Exception
      */
-    public function getById(\$id)
+    public function save($entityName \$entity)
     {
-        return \$this->find(\$id);
+        foreach (\$saveListenerCollection as \$saveListener) {
+            \$saveListener->preSave(\$entity);
+        }
+
+        \$this->getEntityManager()->flush(\$entity);
+
+        foreach (\$saveListenerCollection as \$saveListener) {
+            \$saveListener->postSave(\$entity);
+        }
+
     }
 
     /**
-     * Peforms saving on a bean object.
+     * Peforms remove on the entity.
      *
-     * @param mixed bean object
-     */
-    public function save(\$entity)
-    {
-        \$this->getEntityManager()->persist(\$entity);
-    }
-
-    /**
-     * Peforms remove on a bean object.
-     *
-     * @param $entityName \$entity the bean object
+     * @param $entityName \$entity
      */
     public function remove($entityName \$entity)
     {
         \$this->getEntityManager()->remove(\$entity);
-    }
-
-    /**
-     * Returns the lis of beans.
-     *
-     * @return ".$entityName."[] array of bean objects
-     */
-    public function getList()
-    {
-        return \$this->findAll();
     }
 
     /**
@@ -247,7 +245,7 @@ class $daoBaseClassName extends EntityRepository implements DAOInterface
      *
      * @param array \$criteria
      *
-     * @return ".$entityName." the bean object
+     * @return $entityName
      */
     public function findUniqueBy(array \$criteria)
     {
