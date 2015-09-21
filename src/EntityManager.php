@@ -199,12 +199,12 @@ class $daoBaseClassName extends EntityRepository
 
     /**
      * Get a new persistent entity
-     *
+     * @param ...\$params
      * @return $entityName
      */
-    public function create()
+    public function create(...\$params)
     {
-        \$entity = new $entityName();
+        \$entity = new $entityName(...\$params));
         \$this->getEntityManager->persist(\$entity);
         return \$entity;
     }
