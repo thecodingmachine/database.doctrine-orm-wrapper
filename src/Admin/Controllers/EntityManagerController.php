@@ -142,8 +142,7 @@ class EntityManagerController extends Controller
             $namingStrategy = $this->moufManager->createInstance("Doctrine\\ORM\\Mapping\\UnderscoreNamingStrategy");
             $namingStrategy->setName('underscoreNamingStrategy');
 
-            $doctrineApc = $this->moufManager->createInstance("Doctrine\\Common\\Cache\\ApcCache");
-            $doctrineApc->setName('doctrineApcCache');
+            $doctrineApc = $this->moufManager->getInstanceDescriptor('defaultDoctrineCache');
 
             $config = $this->moufManager->createInstance("Doctrine\\ORM\\Configuration");
             $config->setName('doctrineConfiguration');
@@ -184,8 +183,7 @@ class EntityManagerController extends Controller
             $configQueryCacheProperty = $config->getSetterProperty('setQueryCacheImpl');
             $configResultCacheProperty = $config->getSetterProperty('setResultCacheImpl');
             if(!$configMetadataCacheProperty || !$configQueryCacheProperty || !$configResultCacheProperty){
-                $doctrineApc = $this->moufManager->createInstance("Doctrine\\COMMON\\CACHE\\ApcCache");
-                $doctrineApc->setName('doctrineApcCache');
+                $doctrineApc = $this->moufManager->getInstanceDescriptor('defaultDoctrineCache');
 
                 if(!$configQueryCacheProperty){
                     $configQueryCacheProperty->setValue($doctrineApc);

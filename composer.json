@@ -11,10 +11,10 @@
 	"type" : "mouf-library",
 	"license" : "MIT",
 	"authors" : [{
-			"name" : "David Négrier",
-			"email" : "d.negrier@thecodingmachine.com",
-			"homepage" : "http://mouf-php.com"
-		}
+		"name" : "David Négrier",
+		"email" : "d.negrier@thecodingmachine.com",
+		"homepage" : "http://mouf-php.com"
+	}
 	],
 	"require" : {
 		"php" : ">=5.6.0",
@@ -24,11 +24,12 @@
 		"mouf/database.doctrine-dbal-wrapper" : "~1.1",
 		"symfony/filesystem" : "~2.1",
 		"mouf/utils.constants.debug" : "~1.0",
-		"mouf/mouf-validators-interface" : "~2.0"
+		"mouf/mouf-validators-interface" : "~2.0",
+		"mouf/utils.common.doctrine-cache-wrapper": "~1.0"
 	},
 	"suggest": {
-        "mouf/database.patcher": "Allows creating DB patches automatically on schema update"
-    },
+		"mouf/database.patcher": "Allows creating DB patches automatically on schema update"
+	},
 	"autoload" : {
 		"psr-4" : {
 			"Mouf\\Doctrine\\ORM\\" : "src/"
@@ -37,23 +38,23 @@
 	"extra" : {
 		"mouf" : {
 			"install" : [{
-					"type" : "url",
-					"url" : "entityManagerInstall/?installMode=1"
-				}
+				"type" : "url",
+				"url" : "entityManagerInstall/?installMode=1"
+			}
 			],
 			"doc" : [{
-					"title" : "Defining properties for the 'entityManager' instance",
-					"url" : "doc/define-properties.md"
-				}, {
-					"title" : "Create / Update your DB schema",
-					"url" : "doc/schema.md"
-				}, {
-					"title" : "Generated DAO classes",
-					"url" : "doc/daos.md"
-				}, {
-			  		"title" : "Writing packages that provide entities",
-			  		"url" : "doc/writing_packages.md"
-				}
+				"title" : "Defining properties for the 'entityManager' instance",
+				"url" : "doc/define-properties.md"
+			}, {
+				"title" : "Create / Update your DB schema",
+				"url" : "doc/schema.md"
+			}, {
+				"title" : "Generated DAO classes",
+				"url" : "doc/daos.md"
+			}, {
+				"title" : "Writing packages that provide entities",
+				"url" : "doc/writing_packages.md"
+			}
 			],
 			"logo" : "logo.png",
 			"require-admin" : [
