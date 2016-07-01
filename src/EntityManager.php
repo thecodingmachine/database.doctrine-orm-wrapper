@@ -175,8 +175,8 @@ use Mouf\\Doctrine\\ORM\\Event\\SaveListenerInterface;
 use $entityClass;
 
 /**
- * The $daoBaseClassName class will maintain the persistance of $entityName class into the $tableName table.
-
+ * The $daoBaseClassName class will maintain the persistence of $entityName class into the $tableName table.
+ *
 $magicCallMethodAnnotation
  */
 class $daoBaseClassName extends EntityRepository
@@ -191,7 +191,7 @@ class $daoBaseClassName extends EntityRepository
      * @param EntityManagerInterface \$entityManager
      * @param SaveListenerInterface[] \$saveListenerCollection
      */
-    public function __construct(EntityManagerInterface \$entityManager, SaveListenerInterface[] \$saveListenerCollection)
+    public function __construct(EntityManagerInterface \$entityManager, array \$saveListenerCollection)
     {
         parent::__construct(\$entityManager, \$entityManager->getClassMetadata('$entityClass'));
         \$this->saveListenerCollection = \$saveListenerCollection;
@@ -202,10 +202,10 @@ class $daoBaseClassName extends EntityRepository
      * @param ...\$params
      * @return $entityName
      */
-    public function create(...\$params)
+    public function create(...\$params) : $entityName
     {
-        \$entity = new $entityName(...\$params));
-        \$this->getEntityManager->persist(\$entity);
+        \$entity = new $entityName(...\$params);
+        \$this->getEntityManager()->persist(\$entity);
         return \$entity;
     }
 
@@ -213,17 +213,17 @@ class $daoBaseClassName extends EntityRepository
      * Peforms a flush on the entity.
      *
      * @param $entityName
-     * @throws \Exception
+     * @throws \\Exception
      */
     public function save($entityName \$entity)
     {
-        foreach (\$saveListenerCollection as \$saveListener) {
+        foreach (\$this->saveListenerCollection as \$saveListener) {
             \$saveListener->preSave(\$entity);
         }
 
         \$this->getEntityManager()->flush(\$entity);
 
-        foreach (\$saveListenerCollection as \$saveListener) {
+        foreach (\$this->saveListenerCollection as \$saveListener) {
             \$saveListener->postSave(\$entity);
         }
 
@@ -247,11 +247,11 @@ class $daoBaseClassName extends EntityRepository
      *
      * @return $entityName
      */
-    public function findUniqueBy(array \$criteria)
+    public function findUniqueBy(array \$criteria) : $entityName
     {
         \$result = \$this->findBy(\$criteria);
 
-        if (count(\$result) == 1) {
+        if (count(\$result) === 1) {
             return \$result[0];
         } elseif (count(\$result) > 1) {
             throw new NonUniqueResultException('More than one $entityName was found');
@@ -270,7 +270,7 @@ namespace $this->daoNamespace;
 
 
 /**
-* The $daoClassName class will maintain the persistance of $entityName class into the $tableName table.
+* The $daoClassName class will maintain the persistence of $entityName class into the $tableName table.
 */
 class $daoClassName extends $daoBaseClassName {
 
