@@ -191,7 +191,7 @@ class $daoBaseClassName extends EntityRepository
      * @param EntityManagerInterface \$entityManager
      * @param SaveListenerInterface[] \$saveListenerCollection
      */
-    public function __construct(EntityManagerInterface \$entityManager, SaveListenerInterface[] \$saveListenerCollection)
+    public function __construct(EntityManagerInterface \$entityManager, array \$saveListenerCollection = [])
     {
         parent::__construct(\$entityManager, \$entityManager->getClassMetadata('$entityClass'));
         \$this->saveListenerCollection = \$saveListenerCollection;
@@ -204,7 +204,7 @@ class $daoBaseClassName extends EntityRepository
      */
     public function create(...\$params)
     {
-        \$entity = new $entityName(...\$params));
+        \$entity = new $entityName(...\$params);
         \$this->getEntityManager->persist(\$entity);
         return \$entity;
     }
@@ -218,13 +218,13 @@ class $daoBaseClassName extends EntityRepository
     public function save($entityName \$entity)
     {
         foreach (\$saveListenerCollection as \$saveListener) {
-            \$saveListener->preSave(\$entity);
+            \$this->saveListener->preSave(\$entity);
         }
 
         \$this->getEntityManager()->flush(\$entity);
 
         foreach (\$saveListenerCollection as \$saveListener) {
-            \$saveListener->postSave(\$entity);
+            \$this->saveListener->postSave(\$entity);
         }
 
     }
