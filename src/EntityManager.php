@@ -191,7 +191,7 @@ class $daoBaseClassName extends EntityRepository
      * @param EntityManagerInterface \$entityManager
      * @param SaveListenerInterface[] \$saveListenerCollection
      */
-    public function __construct(EntityManagerInterface \$entityManager, array \$saveListenerCollection)
+    public function __construct(EntityManagerInterface \$entityManager, array \$saveListenerCollection = [])
     {
         parent::__construct(\$entityManager, \$entityManager->getClassMetadata('$entityClass'));
         \$this->saveListenerCollection = \$saveListenerCollection;
