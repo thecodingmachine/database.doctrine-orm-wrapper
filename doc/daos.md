@@ -1,6 +1,6 @@
 #Generated DAO classes
 
-DAO instances will provide you with a shortcut to your Enities' `RepositoyManagers`. If you are familiar with Doctrine ORM, you may know that this code :
+DAO instances will provide you with a shortcut to your Entities' `RepositoryManagers`. If you are familiar with Doctrine ORM, you may know that this code :
 
 ```php
 $user = $entityManager->find('PATH\TO\ENTITIES\User', 7);
