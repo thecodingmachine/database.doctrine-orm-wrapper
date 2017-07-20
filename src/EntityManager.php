@@ -247,7 +247,7 @@ class $daoBaseClassName extends EntityRepository
      *
      * @return $entityName|null
      */
-    public function findUniqueBy(array \$criteria)
+    public function findUniqueBy(array \$criteria) : ?$entityName
     {
         \$result = \$this->findBy(\$criteria);
 
