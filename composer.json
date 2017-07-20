@@ -25,7 +25,8 @@
 		"symfony/filesystem" : "~2.1",
 		"mouf/utils.constants.debug" : "~1.0",
 		"mouf/mouf-validators-interface" : "~2.0",
-		"mouf/utils.common.doctrine-cache-wrapper": "~1.0"
+		"mouf/utils.common.doctrine-cache-wrapper": "~1.0",
+		"mouf/database.patcher": "^2.3"
 	},
 	"suggest": {
 		"mouf/database.patcher": "Allows creating DB patches automatically on schema update"
