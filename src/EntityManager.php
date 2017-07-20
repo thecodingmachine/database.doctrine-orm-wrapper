@@ -245,9 +245,9 @@ class $daoBaseClassName extends EntityRepository
      *
      * @param array \$criteria
      *
-     * @return $entityName
+     * @return $entityName|null
      */
-    public function findUniqueBy(array \$criteria) : $entityName
+    public function findUniqueBy(array \$criteria)
     {
         \$result = \$this->findBy(\$criteria);
 
@@ -256,7 +256,7 @@ class $daoBaseClassName extends EntityRepository
         } elseif (count(\$result) > 1) {
             throw new NonUniqueResultException('More than one $entityName was found');
         } else {
-            return;
+            return null;
         }
     }
 
