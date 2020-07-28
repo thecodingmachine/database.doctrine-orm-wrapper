@@ -1,12 +1,12 @@
 <?php
 namespace Mouf\Doctrine\ORM\Mapping\Driver;
 
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 /**
  * Extension of MappingDriverChain to play more easily with Mouf instances.
  */
-class MappingDriverChain extends \Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain {
+class MappingDriverChain extends \Doctrine\Persistence\Mapping\Driver\MappingDriverChain {
 
     /**
      * @param array<string,MappingDriver> $drivers The key is the namespace, the value the driver to use.

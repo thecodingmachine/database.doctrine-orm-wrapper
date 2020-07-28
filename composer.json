@@ -18,7 +18,7 @@
 	],
 	"require" : {
 		"php" : ">=7.1",
-		"doctrine/orm" : "~2.4",
+		"doctrine/orm" : "~2.7",
 		"mouf/database.dao-interface" : "2.*",
 		"mouf/utils.common.doctrine-annotations-wrapper" : "~1.2",
 		"mouf/database.doctrine-dbal-wrapper" : "~1.1",
